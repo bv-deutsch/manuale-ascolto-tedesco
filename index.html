@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ist Hörverstehen wir(KI)lich so schwer? — Le app del manuale</title>
+<style>
+  :root{
+    --bg: #f7f5ef;
+    --panel-bg: #ffffff;
+    --text: #262626;
+    --text-dim: #5b5b54;
+    --border: #c7c2b3;
+    --accent: #9c5b16;
+    --link: #1f6f8b;
+    --green-ok: #3f9e64;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:"Verdana","Arial","Helvetica Neue",Arial,sans-serif;
+    font-size:17px; line-height:1.6; letter-spacing:0.2px;
+    display:flex; justify-content:center; padding:32px 16px 60px;
+  }
+  #app{ width:100%; max-width:760px; }
+  h1{ font-size:1.7rem; text-align:center; margin:4px 0 6px; }
+  .subtitle{ text-align:center; color:var(--text-dim); font-size:1rem; margin:0 0 8px; }
+  .subtitle2{ text-align:center; color:var(--text-dim); font-size:0.9rem; margin:0 0 34px; font-style:italic; }
+  .banner{ width:100%; border-radius:14px; margin-bottom:28px; display:block; border:2px solid var(--border); }
+  h2.part{
+    font-size:1.1rem; color:var(--accent); border-bottom:2px solid var(--border);
+    padding-bottom:6px; margin:38px 0 16px;
+  }
+  .grid{ display:flex; flex-direction:column; gap:14px; }
+  .card{
+    display:block; border:2px solid var(--border); border-radius:14px;
+    padding:18px 20px; background:var(--panel-bg); text-decoration:none; color:var(--text);
+  }
+  .card:hover{ border-color:var(--link); }
+  .card .title{ font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:4px; display:flex; align-items:center; gap:10px; }
+  .card .title .emoji{ font-size:1.3rem; }
+  .card .desc{ font-size:0.92rem; color:var(--text-dim); line-height:1.5; }
+  .card .tag{
+    display:inline-block; margin-top:8px; font-size:0.78rem; font-weight:700;
+    color:var(--link); background:#e8f1f4; padding:3px 10px; border-radius:12px;
+  }
+  footer{
+    margin-top:48px; text-align:center; color:var(--text-dim); font-size:0.85rem;
+    border-top:1px solid var(--border); padding-top:20px;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <img class="banner" src="banner.png" alt="Ist Hörverstehen wir(KI)lich so schwer? ImparIAmo a comprendere il Tedesco">
+  <p class="subtitle2">Le app interattive del manuale — tocca una scheda per aprire l'esercizio. Funzionano anche offline, una volta caricate.</p>
+
+  <h2 class="part">Parte I — Livello Zero (Capitolo 1)</h2>
+  <div class="grid">
+    <a class="card" href="Zahlenpfad_Gioco_Numeri.html">
+      <div class="title"><span class="emoji">🔢</span> Der Zahlenpfad</div>
+      <div class="desc">Gioco a 4 livelli sui numeri tedeschi da 0 a 100, con sintesi vocale del browser. Si sblocca un livello superando il precedente.</div>
+      <span class="tag">Capitolo 1</span>
+    </a>
+  </div>
+
+  <h2 class="part">Parte II — A1: i primi mattoni (Capitolo 4)</h2>
+  <div class="grid">
+    <a class="card" href="Z_und_er_Hoerspiel.html">
+      <div class="title"><span class="emoji">🔤</span> Z und -er Hörspiel</div>
+      <div class="desc">Tre livelli per allenare l'orecchio sulla <em>z</em> pronunciata "tz" e sul suffisso <em>-er</em>, con distrattori fonetici mirati (Z/S, -er/-en).</div>
+      <span class="tag">Capitolo 4</span>
+    </a>
+    <a class="card" href="Haus_Hoertraining_EchtAudio.html">
+      <div class="title"><span class="emoji">🏠</span> Haus & Wohnung — Hörtraining</div>
+      <div class="desc">4 livelli costruiti su un audio reale (non sintesi vocale): comprensione globale, dettagli, vero/falso, simulazione completa in stile Fit in Deutsch 1.</div>
+      <span class="tag">Capitolo 4</span>
+    </a>
+    <a class="card" href="Flashcard_Haus_Wohnung.html">
+      <div class="title"><span class="emoji">🗂️</span> Flashcard: Haus & Wohnung</div>
+      <div class="desc">43 vocaboli essenziali (nomi, avverbi, verbi, aggettivi) sul tema della casa, ciascuno con l'audio reale della frase originale.</div>
+      <span class="tag">Capitolo 4</span>
+    </a>
+    <a class="card" href="Leons_Tag_Hoertraining.html">
+      <div class="title"><span class="emoji">⏰</span> Leons Tag — Hörtraining</div>
+      <div class="desc">Spiegazione audio dell'ora formale/informale, flashcard di ripasso e 5 livelli (soglia 90%) su un podcast autentico sulla routine quotidiana.</div>
+      <span class="tag">Capitolo 4</span>
+    </a>
+    <a class="card" href="Ascolto_Autentico_A1.html">
+      <div class="title"><span class="emoji">🎧</span> Ascolto autentico A1</div>
+      <div class="desc">3 livelli (vero/falso, scelta multipla, comprensione avanzata) costruiti su dialoghi autentici dal corredo audio di un libro di testo.</div>
+      <span class="tag">Capitolo 4</span>
+    </a>
+  </div>
+
+  <footer>
+    Materiali di accompagnamento al manuale <em>Ist Hörverstehen wir(KI)lich so schwer? ImparIAmo a comprendere il Tedesco</em> — Beatrice Vallini.
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z und -er – Hörspiel</title>
+<style>
+  :root{
+    --board: #1f3d2e;
+    --board-dark: #17301f;
+    --chalk: #f4f1e6;
+    --chalk-dim: #cfcabb;
+    --yellow: #f2c94c;
+    --coral: #ef7358;
+    --sky: #6ec6d9;
+    --green-ok: #8fd694;
+    --red-no: #e57373;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:var(--board);
+    color:var(--chalk);
+    font-family: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:24px 16px 60px;
+  }
+  #app{ width:100%; max-width:640px; }
+
+  h1{
+    font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Trebuchet MS", cursive;
+    font-weight:700;
+    font-size:1.9rem;
+    text-align:center;
+    margin:4px 0 6px;
+  }
+  .subtitle{ text-align:center; color:var(--chalk-dim); font-size:0.95rem; margin:0 0 26px; }
+
+  .levelmap{ display:flex; align-items:center; justify-content:center; margin-bottom:30px; padding:14px 6px; }
+  .node-wrap{ display:flex; align-items:center; }
+  .node{
+    width:52px; height:52px; border-radius:50%;
+    border:2px dashed var(--chalk-dim);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; font-weight:700; color:var(--chalk-dim);
+    background:transparent; cursor:default; flex-shrink:0;
+    transition:transform .15s ease;
+  }
+  .node.unlocked{ border-style:solid; border-color:var(--sky); color:var(--chalk); cursor:pointer; }
+  .node.unlocked:hover{ transform:scale(1.08); }
+  .node.current{ border-color:var(--yellow); color:var(--yellow); box-shadow:0 0 0 4px rgba(242,201,76,0.15); }
+  .node.done{ border-style:solid; border-color:var(--green-ok); background:rgba(143,214,148,0.12); color:var(--green-ok); }
+  .connector{ width:34px; height:0; border-top:2px dashed var(--chalk-dim); flex-shrink:0; }
+
+  .panel{
+    border:2px dashed var(--chalk-dim); border-radius:14px;
+    padding:26px 22px; text-align:center; background:rgba(255,255,255,0.02);
+  }
+  .panel h2{
+    font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;
+    font-size:1.4rem; margin:0 0 10px; color:var(--yellow);
+  }
+  .panel p{ color:var(--chalk-dim); line-height:1.5; margin:0 0 20px; }
+
+  button{ font-family:inherit; cursor:pointer; }
+  button:focus-visible{ outline:3px solid var(--sky); outline-offset:2px; }
+
+  .btn-primary{
+    background:var(--coral); color:var(--board-dark); border:none;
+    font-weight:700; font-size:1.05rem; padding:13px 28px; border-radius:30px;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .btn-primary:hover{ background:#f28469; transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+
+  .btn-ghost{
+    background:transparent; border:2px solid var(--chalk-dim); color:var(--chalk);
+    font-weight:600; padding:10px 22px; border-radius:30px;
+  }
+  .btn-ghost:hover{ border-color:var(--sky); color:var(--sky); }
+
+  .hud{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; font-size:0.9rem; color:var(--chalk-dim); }
+  .progress-dots{ display:flex; gap:6px; justify-content:center; margin-bottom:22px; }
+  .dot{ width:10px; height:10px; border-radius:50%; background:rgba(244,241,230,0.15); }
+  .dot.filled{ background:var(--sky); }
+  .dot.wrong{ background:var(--red-no); }
+
+  .listen-btn{
+    display:flex; align-items:center; gap:10px; justify-content:center;
+    margin:0 auto 26px; background:var(--sky); color:var(--board-dark); border:none;
+    font-weight:700; font-size:1.1rem; padding:16px 30px; border-radius:40px;
+  }
+  .listen-btn:hover{ background:#82d3e3; }
+
+  .options{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px; }
+  .options.list{ grid-template-columns:1fr; }
+  .option{
+    border:2px solid var(--chalk-dim); background:rgba(255,255,255,0.03); color:var(--chalk);
+    font-size:1.15rem; font-weight:700; padding:16px 10px; border-radius:12px;
+    transition:transform .1s ease, background .15s ease, border-color .15s ease;
+    line-height:1.3;
+  }
+  .options.list .option{ font-size:1.05rem; text-align:left; padding:16px 18px; }
+  .option:hover:not(:disabled){ border-color:var(--yellow); transform:translateY(-2px); }
+  .option:disabled{ cursor:default; }
+  .option.correct{ background:rgba(143,214,148,0.25); border-color:var(--green-ok); color:var(--green-ok); }
+  .option.wrong{ background:rgba(229,115,115,0.25); border-color:var(--red-no); color:var(--red-no); }
+
+  .feedback-row{ min-height:44px; margin-top:18px; display:flex; justify-content:center; align-items:center; text-align:center; }
+
+  footer.hint{ text-align:center; color:var(--chalk-dim); font-size:0.8rem; margin-top:26px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Z und -er</h1>
+  <p class="subtitle">Höre gut hin: der Z-Laut und die Endung -er</p>
+
+  <div class="levelmap" id="levelmap"></div>
+  <div id="screen"></div>
+  <footer class="hint" id="hint">Tipp: Klicke auf den Lautsprecher, um erneut zu hören.</footer>
+</div>
+
+<script>
+// ---------- Wortlisten ----------
+const Z_WORDS = ['Zimmer','Zug','Zahn','Zucker','Zeitung','Zwiebel','Ziege','Zettel'];
+const S_CONFUSERS = ['Sommer','Suppe','Sonne','Saft','Seife','Sofa','Sand','Sieg'];
+
+const ER_WORDS = ['Lehrer','Wasser','Mutter','Vater','Fenster','Teller','Butter','Bruder','Schwester','Computer'];
+
+const SENTENCES = [
+  'Im Zimmer gibt es ein Fenster.',
+  'Der Lehrer trinkt Wasser.',
+  'Die Mutter kauft Zucker.',
+  'Der Zug fährt schnell.',
+  'Der Vater liest die Zeitung.',
+  'Auf dem Teller liegt eine Zwiebel.',
+  'Die Schwester füttert die Ziege.',
+  'Der Bruder isst Butter aufs Brot.'
+];
+
+// ---------- Sprachausgabe ----------
+let germanVoice = null;
+let lastUtterance = null;
+let audioSupported = ('speechSynthesis' in window);
+let audioUnlocked = false;
+
+function loadVoice(){
+  if(!audioSupported) return;
+  const voices = speechSynthesis.getVoices();
+  germanVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || null;
+}
+if(audioSupported){
+  loadVoice();
+  speechSynthesis.onvoiceschanged = loadVoice;
+}
+function speak(text, onEnd){
+  if(!audioSupported){ if(onEnd) onEnd(); return; }
+  try{
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'de-DE';
+    utter.rate = 0.85;
+    if(germanVoice) utter.voice = germanVoice;
+    utter.onend = ()=>{ if(onEnd) onEnd(); };
+    utter.onerror = ()=>{ if(onEnd) onEnd(); };
+    lastUtterance = utter;
+    speechSynthesis.speak(utter);
+  }catch(e){ if(onEnd) onEnd(); }
+}
+
+// ---------- Level-Konfiguration ----------
+const LEVELS = [
+  { id:1, name:'Wörter mit Z', pool:[...Z_WORDS, ...S_CONFUSERS], targetPool:Z_WORDS, questions:6, passScore:5, layout:'grid' },
+  { id:2, name:'Wörter auf -er', pool:ER_WORDS, targetPool:ER_WORDS, questions:6, passScore:5, layout:'grid' },
+  { id:3, name:'Gemischte Sätze', pool:SENTENCES, targetPool:SENTENCES, questions:6, passScore:5, layout:'list' },
+];
+
+let state = {
+  screen:'home', currentLevel:1, unlockedLevel:1, completedLevels:new Set(),
+  q:0, score:0, correctAnswer:null, options:[], answered:false, history:[]
+};
+
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function pickQuestion(level){
+  const correct = level.targetPool[randInt(0, level.targetPool.length-1)];
+  const others = level.pool.filter(w => w !== correct);
+  const distractors = shuffle(others).slice(0,3);
+  return { correct, options: shuffle([correct, ...distractors]) };
+}
+
+// ---------- Render ----------
+function render(){
+  renderLevelMap();
+  const screen = document.getElementById('screen');
+  const hint = document.getElementById('hint');
+  if(state.screen === 'home'){
+    hint.textContent = 'Tipp: Klicke auf den Lautsprecher, um erneut zu hören.';
+    const audioMsg = !audioSupported
+      ? `<p style="color:var(--red-no);">Dieser Browser unterstützt leider keine Sprachausgabe.</p>`
+      : (audioUnlocked
+          ? `<p style="color:var(--green-ok);">🔊 Ton aktiv.</p>`
+          : `<p style="color:var(--chalk-dim);">Zuerst kurz den Ton testen:</p>`);
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>Willkommen!</h2>
+        <p>Drei Stationen: der Z-Laut, die Endung -er, und dann gemischte Sätze.</p>
+        ${audioMsg}
+        ${audioSupported && !audioUnlocked ? `<button class="btn-ghost" id="test-audio-btn" style="margin-bottom:16px;">🔈 Ton testen</button><br>` : ''}
+        <button class="btn-primary" id="start-btn" ${audioSupported && !audioUnlocked ? 'disabled' : ''}>Los geht's</button>
+      </div>`;
+    const testBtn = document.getElementById('test-audio-btn');
+    if(testBtn){
+      testBtn.addEventListener('click', ()=>{
+        speak('Zimmer', ()=>{ audioUnlocked = true; render(); });
+      });
+    }
+    document.getElementById('start-btn').addEventListener('click', ()=>{
+      if(state.screen === 'home') startLevel(state.unlockedLevel);
+    });
+  } else if(state.screen === 'play'){
+    renderPlay();
+  } else if(state.screen === 'levelresult'){
+    renderLevelResult();
+  } else if(state.screen === 'finished'){
+    hint.textContent = '';
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>🎉 Geschafft!</h2>
+        <p>Du hast Z und -er gemeistert.</p>
+        <button class="btn-primary" id="restart-btn">Nochmal von vorne</button>
+      </div>`;
+    document.getElementById('restart-btn').addEventListener('click', ()=>{
+      state = { screen:'home', currentLevel:1, unlockedLevel:1, completedLevels:new Set(), q:0, score:0, correctAnswer:null, options:[], answered:false, history:[] };
+      render();
+    });
+    audioUnlocked = true;
+  }
+}
+
+function renderLevelMap(){
+  const map = document.getElementById('levelmap');
+  let html = '';
+  LEVELS.forEach((lvl, idx)=>{
+    let cls = 'node';
+    if(state.completedLevels.has(lvl.id)) cls += ' done';
+    else if(lvl.id === state.currentLevel && state.screen === 'play') cls += ' current';
+    else if(lvl.id <= state.unlockedLevel) cls += ' unlocked';
+    const label = state.completedLevels.has(lvl.id) ? '✓' : lvl.id;
+    html += `<div class="node-wrap"><button class="${cls}" data-lvl="${lvl.id}" ${lvl.id<=state.unlockedLevel?'':'disabled'} aria-label="Level ${lvl.id}: ${lvl.name}">${label}</button>`;
+    if(idx < LEVELS.length-1) html += `<div class="connector"></div>`;
+    html += `</div>`;
+  });
+  map.innerHTML = html;
+  map.querySelectorAll('.node.unlocked, .node.done').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const lvlId = parseInt(btn.dataset.lvl,10);
+      if(lvlId <= state.unlockedLevel) startLevel(lvlId);
+    });
+  });
+}
+
+function startLevel(lvlId){
+  state.screen = 'play';
+  state.currentLevel = lvlId;
+  state.q = 0;
+  state.score = 0;
+  state.history = [];
+  nextQuestion();
+}
+
+function nextQuestion(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const q = pickQuestion(level);
+  state.correctAnswer = q.correct;
+  state.options = q.options;
+  state.answered = false;
+  render();
+  setTimeout(()=> speak(state.correctAnswer), 300);
+}
+
+function renderPlay(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const hint = document.getElementById('hint');
+  hint.textContent = 'Tipp: Klicke auf den Lautsprecher, um erneut zu hören.';
+  const screen = document.getElementById('screen');
+
+  let dots = '';
+  for(let i=0;i<level.questions;i++){
+    let cls = 'dot';
+    if(state.history[i] === 'ok') cls += ' filled';
+    if(state.history[i] === 'ko') cls += ' wrong';
+    dots += `<div class="${cls}"></div>`;
+  }
+
+  screen.innerHTML = `
+    <div class="hud">
+      <span>${level.name}</span>
+      <span>Frage ${state.q+1}/${level.questions}</span>
+    </div>
+    <div class="progress-dots">${dots}</div>
+    <div class="panel">
+      <button class="listen-btn" id="listen-btn">🔊 Anhören</button>
+      <div class="options ${level.layout==='list' ? 'list' : ''}" id="options"></div>
+      <div class="feedback-row" id="feedback"></div>
+    </div>`;
+
+  document.getElementById('listen-btn').addEventListener('click', ()=> speak(state.correctAnswer));
+
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = state.options.map(o=>`<button class="option" data-val="${o.replace(/"/g,'&quot;')}">${o}</button>`).join('');
+  optionsEl.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click', ()=> handleAnswer(btn.dataset.val));
+  });
+}
+
+function handleAnswer(chosen){
+  if(state.answered) return;
+  state.answered = true;
+  const ok = chosen === state.correctAnswer;
+  state.history[state.q] = ok ? 'ok' : 'ko';
+  if(ok) state.score++;
+
+  document.querySelectorAll('.option').forEach(btn=>{
+    btn.disabled = true;
+    if(btn.dataset.val === state.correctAnswer) btn.classList.add('correct');
+    else if(btn.dataset.val === chosen) btn.classList.add('wrong');
+  });
+
+  const feedback = document.getElementById('feedback');
+  feedback.innerHTML = ok
+    ? `<span style="color:var(--green-ok); font-weight:700;">Richtig!</span>`
+    : `<span style="color:var(--red-no); font-weight:700;">Das war: „${state.correctAnswer}"</span>`;
+
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  setTimeout(()=>{
+    state.q++;
+    if(state.q >= level.questions) finishLevel();
+    else nextQuestion();
+  }, 1500);
+}
+
+function finishLevel(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const passed = state.score >= level.passScore;
+  if(passed){
+    state.completedLevels.add(level.id);
+    if(level.id === state.unlockedLevel && level.id < LEVELS.length){
+      state.unlockedLevel = level.id + 1;
+    }
+  }
+  state.screen = 'levelresult';
+  state.lastPassed = passed;
+  render();
+}
+
+function renderLevelResult(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const hint = document.getElementById('hint');
+  hint.textContent = '';
+  const screen = document.getElementById('screen');
+  const isLast = level.id === LEVELS.length;
+
+  if(state.lastPassed){
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>${isLast ? '🏆 Letztes Level geschafft!' : 'Level geschafft!'}</h2>
+        <p>${state.score} von ${level.questions} richtig.</p>
+        <button class="btn-primary" id="continue-btn">${isLast ? 'Zum Abschluss' : 'Nächstes Level'}</button>
+      </div>`;
+    document.getElementById('continue-btn').addEventListener('click', ()=>{
+      if(isLast){ state.screen = 'finished'; render(); }
+      else startLevel(level.id + 1);
+    });
+  } else {
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>Fast geschafft!</h2>
+        <p>${state.score} von ${level.questions} richtig – für dieses Level braucht man mindestens ${level.passScore}.</p>
+        <button class="btn-primary" id="retry-btn">Nochmal versuchen</button>
+      </div>`;
+    document.getElementById('retry-btn').addEventListener('click', ()=> startLevel(level.id));
+  }
+}
+
+render();
+</script>
+</body>
+</html>

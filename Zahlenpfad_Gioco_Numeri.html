@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Der Zahlenpfad – Zahlen 0 bis 100</title>
+<style>
+  :root{
+    --board: #1f3d2e;
+    --board-dark: #17301f;
+    --chalk: #f4f1e6;
+    --chalk-dim: #cfcabb;
+    --yellow: #f2c94c;
+    --coral: #ef7358;
+    --sky: #6ec6d9;
+    --green-ok: #8fd694;
+    --red-no: #e57373;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(ellipse at 80% 90%, rgba(255,255,255,0.03), transparent 40%),
+      var(--board);
+    background-color:var(--board);
+    color:var(--chalk);
+    font-family: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:24px 16px 60px;
+  }
+  #app{ width:100%; max-width:640px; }
+
+  h1{
+    font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", "Trebuchet MS", cursive;
+    font-weight:700;
+    font-size:2rem;
+    letter-spacing:0.5px;
+    text-align:center;
+    margin:4px 0 6px;
+    color:var(--chalk);
+    text-shadow: 0 0 1px rgba(244,241,230,0.3);
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:0.95rem;
+    margin:0 0 26px;
+  }
+
+  /* Level map */
+  .levelmap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+    margin-bottom:30px;
+    padding:14px 6px;
+  }
+  .node-wrap{ display:flex; align-items:center; }
+  .node{
+    width:52px; height:52px;
+    border-radius:50%;
+    border:2px dashed var(--chalk-dim);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; font-weight:700;
+    color:var(--chalk-dim);
+    background:transparent;
+    cursor:default;
+    flex-shrink:0;
+    transition:transform .15s ease;
+  }
+  .node.unlocked{ border-style:solid; border-color:var(--sky); color:var(--chalk); cursor:pointer; }
+  .node.unlocked:hover{ transform:scale(1.08); }
+  .node.current{ border-color:var(--yellow); color:var(--yellow); box-shadow:0 0 0 4px rgba(242,201,76,0.15); }
+  .node.done{ border-style:solid; border-color:var(--green-ok); background:rgba(143,214,148,0.12); color:var(--green-ok); }
+  .connector{
+    width:34px; height:0;
+    border-top:2px dashed var(--chalk-dim);
+    flex-shrink:0;
+  }
+
+  /* Panels */
+  .panel{
+    border:2px dashed var(--chalk-dim);
+    border-radius:14px;
+    padding:28px 22px;
+    text-align:center;
+    background:rgba(255,255,255,0.02);
+  }
+  .panel h2{
+    font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;
+    font-size:1.5rem;
+    margin:0 0 10px;
+    color:var(--yellow);
+  }
+  .panel p{ color:var(--chalk-dim); line-height:1.5; margin:0 0 20px; }
+
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  button:focus-visible{
+    outline:3px solid var(--sky);
+    outline-offset:2px;
+  }
+
+  .btn-primary{
+    background:var(--coral);
+    color:var(--board-dark);
+    border:none;
+    font-weight:700;
+    font-size:1.05rem;
+    padding:13px 28px;
+    border-radius:30px;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .btn-primary:hover{ background:#f28469; transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+
+  .btn-ghost{
+    background:transparent;
+    border:2px solid var(--chalk-dim);
+    color:var(--chalk);
+    font-weight:600;
+    padding:10px 22px;
+    border-radius:30px;
+  }
+  .btn-ghost:hover{ border-color:var(--sky); color:var(--sky); }
+
+  /* Play screen */
+  .hud{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+    font-size:0.9rem;
+    color:var(--chalk-dim);
+  }
+  .hud .stars{ color:var(--yellow); letter-spacing:2px; }
+  .progress-dots{ display:flex; gap:6px; justify-content:center; margin-bottom:22px; }
+  .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:rgba(244,241,230,0.15);
+  }
+  .dot.filled{ background:var(--sky); }
+  .dot.wrong{ background:var(--red-no); }
+
+  .listen-btn{
+    display:flex; align-items:center; gap:10px; justify-content:center;
+    margin:0 auto 26px;
+    background:var(--sky);
+    color:var(--board-dark);
+    border:none;
+    font-weight:700;
+    font-size:1.1rem;
+    padding:16px 30px;
+    border-radius:40px;
+  }
+  .listen-btn:hover{ background:#82d3e3; }
+  .listen-btn .icon{ font-size:1.3rem; }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:6px;
+  }
+  .option{
+    border:2px solid var(--chalk-dim);
+    background:rgba(255,255,255,0.03);
+    color:var(--chalk);
+    font-size:1.6rem;
+    font-weight:700;
+    padding:18px 8px;
+    border-radius:12px;
+    transition:transform .1s ease, background .15s ease, border-color .15s ease;
+  }
+  .option:hover:not(:disabled){ border-color:var(--yellow); transform:translateY(-2px); }
+  .option:disabled{ cursor:default; }
+  .option.correct{ background:rgba(143,214,148,0.25); border-color:var(--green-ok); color:var(--green-ok); }
+  .option.wrong{ background:rgba(229,115,115,0.25); border-color:var(--red-no); color:var(--red-no); }
+
+  .feedback-row{ min-height:44px; margin-top:18px; display:flex; justify-content:center; align-items:center; }
+
+  footer.hint{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:0.8rem;
+    margin-top:26px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Der Zahlenpfad</h1>
+  <p class="subtitle">Höre die Zahl und finde sie – von 0 bis 100</p>
+
+  <div class="levelmap" id="levelmap"></div>
+  <div id="screen"></div>
+  <footer class="hint" id="hint">Tipp: Klicke auf den Lautsprecher, um die Zahl erneut zu hören.</footer>
+</div>
+
+<script>
+// ---------- Zahlen auf Deutsch ----------
+const ONES = ['null','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun','zehn',
+              'elf','zwölf','dreizehn','vierzehn','fünfzehn','sechzehn','siebzehn','achtzehn','neunzehn'];
+const TENS = {20:'zwanzig',30:'dreißig',40:'vierzig',50:'fünfzig',60:'sechzig',70:'siebzig',80:'achtzig',90:'neunzig'};
+
+function numberToGerman(n){
+  if(n === 100) return 'hundert';
+  if(n < 20) return ONES[n];
+  const t = Math.floor(n/10)*10, u = n%10;
+  if(u === 0) return TENS[t];
+  const unit = (u === 1) ? 'ein' : ONES[u];
+  return unit + 'und' + TENS[t];
+}
+
+// ---------- Sprachausgabe ----------
+let germanVoice = null;
+let lastUtterance = null; // Referenz halten: sonst können manche Browser die Utterance
+                           // vor dem Sprechen "garbage collecten" und der Ton bleibt stumm.
+let audioSupported = ('speechSynthesis' in window);
+let audioUnlocked = false;
+
+function loadVoice(){
+  if(!audioSupported) return;
+  const voices = speechSynthesis.getVoices();
+  germanVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || null;
+}
+if(audioSupported){
+  loadVoice();
+  speechSynthesis.onvoiceschanged = loadVoice;
+}
+
+function speak(number, onEnd){
+  if(!audioSupported){
+    if(onEnd) onEnd();
+    return;
+  }
+  try{
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(numberToGerman(number));
+    utter.lang = 'de-DE';
+    utter.rate = 0.85;
+    if(germanVoice) utter.voice = germanVoice;
+    utter.onend = ()=>{ if(onEnd) onEnd(); };
+    utter.onerror = ()=>{ if(onEnd) onEnd(); };
+    lastUtterance = utter;
+    speechSynthesis.speak(utter);
+  }catch(e){
+    if(onEnd) onEnd();
+  }
+}
+
+// ---------- Level-Konfiguration ----------
+const LEVELS = [
+  { id:1, name:'Zahlen 0–10', min:0, max:10, onlyTens:false, questions:6, passScore:5 },
+  { id:2, name:'Zahlen 11–20', min:11, max:20, onlyTens:false, questions:6, passScore:5 },
+  { id:3, name:'Zehnerzahlen bis 100', min:20, max:100, onlyTens:true, questions:6, passScore:5 },
+  { id:4, name:'Zahlen 0–100 gemischt', min:0, max:100, onlyTens:false, questions:8, passScore:6 },
+];
+
+let state = {
+  screen: 'home',       // home | play | levelresult | finished
+  currentLevel: 1,
+  unlockedLevel: 1,
+  completedLevels: new Set(),
+  q: 0,
+  score: 0,
+  correctAnswer: null,
+  answered: false,
+  history: []           // 'ok' | 'ko' per question, for dots
+};
+
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function pickNumber(level){
+  if(level.onlyTens){
+    const opts = [];
+    for(let v=level.min; v<=level.max; v+=10) opts.push(v);
+    return opts[randInt(0, opts.length-1)];
+  }
+  return randInt(level.min, level.max);
+}
+
+function getDistractors(correct, level, count){
+  const cand = new Set();
+  // Verwechslungspaar -zehn / -zig
+  if(correct % 10 === 0 && correct >= 30 && correct <= 90){
+    const teen = correct/10 + 10;
+    if(teen >= level.min || true) cand.add(teen);
+  } else if(correct >= 13 && correct <= 19){
+    const decade = (correct - 10) * 10;
+    cand.add(decade);
+  }
+  let guard = 0;
+  while(cand.size < count && guard < 100){
+    guard++;
+    let low = level.min, high = level.max;
+    let c;
+    if(level.onlyTens){
+      const steps = [];
+      for(let v=low; v<=high; v+=10) steps.push(v);
+      c = steps[randInt(0, steps.length-1)];
+    } else {
+      const delta = randInt(-12,12);
+      c = correct + delta;
+    }
+    if(c >= low && c <= high && c !== correct) cand.add(c);
+  }
+  return Array.from(cand).slice(0,count);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ---------- Render ----------
+function render(){
+  renderLevelMap();
+  const screen = document.getElementById('screen');
+  const hint = document.getElementById('hint');
+  if(state.screen === 'home'){
+    hint.textContent = 'Tipp: Klicke auf den Lautsprecher, um die Zahl erneut zu hören.';
+    const audioMsg = !audioSupported
+      ? `<p style="color:var(--red-no);">Dieser Browser unterstützt leider keine Sprachausgabe. Bitte einen anderen Browser (z. B. Chrome) ausprobieren.</p>`
+      : (audioUnlocked
+          ? `<p style="color:var(--green-ok);">🔊 Ton aktiv.</p>`
+          : `<p style="color:var(--chalk-dim);">Zuerst kurz den Ton testen:</p>`);
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>Willkommen auf dem Zahlenpfad!</h2>
+        <p>Vier Stationen, ein Ziel: alle Zahlen von 0 bis 100 sicher erkennen.<br>
+        Höre gut zu und wähle die richtige Zahl.</p>
+        ${audioMsg}
+        ${audioSupported && !audioUnlocked ? `<button class="btn-ghost" id="test-audio-btn" style="margin-bottom:16px;">🔈 Ton testen</button><br>` : ''}
+        <button class="btn-primary" id="start-btn" ${audioSupported && !audioUnlocked ? 'disabled' : ''}>Los geht's</button>
+      </div>`;
+    const testBtn = document.getElementById('test-audio-btn');
+    if(testBtn){
+      testBtn.addEventListener('click', ()=>{
+        speak(1, ()=>{
+          audioUnlocked = true;
+          render();
+        });
+      });
+    }
+    document.getElementById('start-btn').addEventListener('click', ()=>{
+      if(state.screen === 'home') startLevel(state.unlockedLevel);
+    });
+  } else if(state.screen === 'play'){
+    renderPlay();
+  } else if(state.screen === 'levelresult'){
+    renderLevelResult();
+  } else if(state.screen === 'finished'){
+    hint.textContent = '';
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>🎉 Geschafft!</h2>
+        <p>Du hast den ganzen Zahlenpfad gemeistert – von 0 bis 100.</p>
+        <button class="btn-primary" id="restart-btn">Nochmal von vorne</button>
+      </div>`;
+    document.getElementById('restart-btn').addEventListener('click', ()=>{
+      state = { screen:'home', currentLevel:1, unlockedLevel:1, completedLevels:new Set(), q:0, score:0, correctAnswer:null, answered:false, history:[] };
+      render();
+    });
+    audioUnlocked = true; // Ton ist schon aktiv, kein erneuter Test nötig
+  }
+}
+
+function renderLevelMap(){
+  const map = document.getElementById('levelmap');
+  let html = '';
+  LEVELS.forEach((lvl, idx)=>{
+    let cls = 'node';
+    if(state.completedLevels.has(lvl.id)) cls += ' done';
+    else if(lvl.id === state.currentLevel && state.screen === 'play') cls += ' current';
+    else if(lvl.id <= state.unlockedLevel) cls += ' unlocked';
+    const label = state.completedLevels.has(lvl.id) ? '✓' : lvl.id;
+    html += `<div class="node-wrap"><button class="${cls}" data-lvl="${lvl.id}" ${lvl.id<=state.unlockedLevel?'':'disabled'} aria-label="Level ${lvl.id}: ${lvl.name}">${label}</button>`;
+    if(idx < LEVELS.length-1) html += `<div class="connector"></div>`;
+    html += `</div>`;
+  });
+  map.innerHTML = html;
+  map.querySelectorAll('.node.unlocked, .node.done').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const lvlId = parseInt(btn.dataset.lvl,10);
+      if(lvlId <= state.unlockedLevel) startLevel(lvlId);
+    });
+  });
+}
+
+function startLevel(lvlId){
+  state.screen = 'play';
+  state.currentLevel = lvlId;
+  state.q = 0;
+  state.score = 0;
+  state.history = [];
+  nextQuestion();
+}
+
+function nextQuestion(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  state.correctAnswer = pickNumber(level);
+  const distractors = getDistractors(state.correctAnswer, level, 3);
+  state.options = shuffle([state.correctAnswer, ...distractors]);
+  state.answered = false;
+  render();
+  setTimeout(()=> speak(state.correctAnswer), 300);
+}
+
+function renderPlay(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const hint = document.getElementById('hint');
+  hint.textContent = 'Tipp: Klicke auf den Lautsprecher, um die Zahl erneut zu hören.';
+  const screen = document.getElementById('screen');
+
+  let dots = '';
+  for(let i=0;i<level.questions;i++){
+    let cls = 'dot';
+    if(state.history[i] === 'ok') cls += ' filled';
+    if(state.history[i] === 'ko') cls += ' wrong';
+    dots += `<div class="${cls}"></div>`;
+  }
+
+  screen.innerHTML = `
+    <div class="hud">
+      <span>${level.name}</span>
+      <span class="stars">Frage ${state.q+1}/${level.questions}</span>
+    </div>
+    <div class="progress-dots">${dots}</div>
+    <div class="panel">
+      <button class="listen-btn" id="listen-btn"><span class="icon">🔊</span> Zahl hören</button>
+      <div class="options" id="options"></div>
+      <div class="feedback-row" id="feedback"></div>
+    </div>`;
+
+  document.getElementById('listen-btn').addEventListener('click', ()=> speak(state.correctAnswer));
+
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = state.options.map(o=>`<button class="option" data-val="${o}">${o}</button>`).join('');
+  optionsEl.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click', ()=> handleAnswer(parseInt(btn.dataset.val,10)));
+  });
+}
+
+function handleAnswer(chosen){
+  if(state.answered) return;
+  state.answered = true;
+  const ok = chosen === state.correctAnswer;
+  state.history[state.q] = ok ? 'ok' : 'ko';
+  if(ok) state.score++;
+
+  document.querySelectorAll('.option').forEach(btn=>{
+    btn.disabled = true;
+    const val = parseInt(btn.dataset.val,10);
+    if(val === state.correctAnswer) btn.classList.add('correct');
+    else if(val === chosen) btn.classList.add('wrong');
+  });
+
+  const feedback = document.getElementById('feedback');
+  feedback.innerHTML = ok
+    ? `<span style="color:var(--green-ok); font-weight:700;">Richtig! Das war ${state.correctAnswer}.</span>`
+    : `<span style="color:var(--red-no); font-weight:700;">Das war ${state.correctAnswer} (${numberToGerman(state.correctAnswer)}).</span>`;
+
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  setTimeout(()=>{
+    state.q++;
+    if(state.q >= level.questions){
+      finishLevel();
+    } else {
+      nextQuestion();
+    }
+  }, 1400);
+}
+
+function finishLevel(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const passed = state.score >= level.passScore;
+  if(passed){
+    state.completedLevels.add(level.id);
+    if(level.id === state.unlockedLevel && level.id < LEVELS.length){
+      state.unlockedLevel = level.id + 1;
+    }
+  }
+  state.screen = 'levelresult';
+  state.lastPassed = passed;
+  render();
+}
+
+function renderLevelResult(){
+  const level = LEVELS.find(l=>l.id===state.currentLevel);
+  const hint = document.getElementById('hint');
+  hint.textContent = '';
+  const screen = document.getElementById('screen');
+  const isLast = level.id === LEVELS.length;
+
+  if(state.lastPassed){
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>${isLast ? '🏆 Letztes Level geschafft!' : 'Level geschafft!'}</h2>
+        <p>${state.score} von ${level.questions} richtig.</p>
+        <button class="btn-primary" id="continue-btn">${isLast ? 'Zum Abschluss' : 'Nächstes Level'}</button>
+      </div>`;
+    document.getElementById('continue-btn').addEventListener('click', ()=>{
+      if(isLast){
+        state.screen = 'finished';
+        render();
+      } else {
+        startLevel(level.id + 1);
+      }
+    });
+  } else {
+    screen.innerHTML = `
+      <div class="panel">
+        <h2>Fast geschafft!</h2>
+        <p>${state.score} von ${level.questions} richtig – für dieses Level braucht man mindestens ${level.passScore}.</p>
+        <button class="btn-primary" id="retry-btn">Nochmal versuchen</button>
+      </div>`;
+    document.getElementById('retry-btn').addEventListener('click', ()=> startLevel(level.id));
+  }
+}
+
+render();
+</script>
+</body>
+</html>
