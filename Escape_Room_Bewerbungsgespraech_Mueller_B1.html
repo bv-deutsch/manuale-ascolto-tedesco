@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Escape Room: Das Vorstellungsgespräch von Frau Müller (B1)</title>
+<style>
+:root{--bg:#f7f5ef;--panel:#fff;--text:#262626;--dim:#5b5b54;--border:#c7c2b3;--accent:#9c5b16;--link:#1f6f8b;--linkbg:#e8f1f4;--ok:#2f7f4f;--okbg:#e6f3ea;--ko:#a63d2a;--kobg:#f8e7e2;--note:#fff6c9;--noteb:#e2cf6b;--dark:#2b3036}
+*{box-sizing:border-box}html,body{margin:0}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:Verdana,Arial,sans-serif;font-size:17px;line-height:1.6;letter-spacing:.2px;padding:calc(18px + env(safe-area-inset-top,0px)) 14px calc(50px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center}
+#app{width:100%;max-width:780px}
+h1{font-size:1.5rem;line-height:1.3;margin:0 0 6px}h2{font-size:1.2rem;margin:0 0 8px;line-height:1.35}
+p{margin:0 0 10px}.it{color:var(--dim);font-style:italic;font-size:.9rem}
+.panel{background:var(--panel);border:2px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+button{font-family:inherit;font-size:1rem;cursor:pointer;border-radius:10px;border:2px solid var(--border);background:var(--panel);color:var(--text);padding:10px 16px;line-height:1.4}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--link);border-color:var(--link);color:#fff;font-weight:700}
+.listen{background:var(--linkbg);border-color:var(--link);color:var(--link);font-weight:700}
+.listen.playing{background:var(--link);color:#fff}
+.hint{background:transparent;border-color:var(--accent);color:var(--accent);font-size:.9rem;padding:6px 12px}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--dark);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.hud .time{font-family:"Courier New",monospace;font-size:1.25rem;font-weight:700}
+.doors{display:flex;gap:6px}
+.vid{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:10px;overflow:hidden;margin:10px 0}
+.vid>div,.vid iframe{position:absolute;inset:0;width:100%;height:100%}
+.chk{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid #ece8dc}.chk:first-child{border-top:none}.chk input{width:22px;height:22px}
+.door{width:30px;height:40px;border-radius:6px 6px 2px 2px;border:2px solid #6b737c;background:#3a4047;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#cfd5db}
+.door.open{background:var(--ok);border-color:#7fd3a2;color:#fff}
+.door.cur{border-color:#ffd166}
+.notes{display:flex;gap:8px;align-items:center;background:var(--note);border:2px dashed var(--noteb);border-radius:10px;padding:8px 12px;margin-bottom:14px;flex-wrap:wrap}
+.digit{width:34px;height:42px;border-radius:6px;background:#fff;border:2px solid var(--noteb);display:flex;align-items:center;justify-content:center;font-size:1.35rem;font-weight:700;font-family:"Courier New",monospace}
+.room-tag{font-size:.85rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.step{font-size:.85rem;color:var(--dim)}
+.opts{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.opt{text-align:left;width:100%}
+.opt.right{background:var(--okbg);border-color:var(--ok)}.opt.wrong{background:var(--kobg);border-color:var(--ko)}
+.fb{border-radius:10px;padding:12px 14px;margin:12px 0;font-size:.95rem}
+.fb.ok{background:var(--okbg);border-left:5px solid var(--ok)}.fb.ko{background:var(--kobg);border-left:5px solid var(--ko)}.fb.info{background:var(--linkbg);border-left:5px solid var(--link)}
+.tf{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid #ece8dc;padding:10px 0}
+.tf:first-child{border-top:none}
+.tf .btns{display:flex;gap:6px;flex:0 0 auto}
+.tf button{padding:6px 12px;font-size:.9rem}
+.tf button.sel{background:var(--linkbg);border-color:var(--link);font-weight:700}
+select{font-family:inherit;font-size:1rem;padding:8px 10px;border:2px solid var(--border);border-radius:10px;background:#fff;max-width:100%}
+input[type=text]{font-family:inherit;font-size:1.1rem;padding:10px 12px;border:2px solid var(--border);border-radius:10px;width:100%;max-width:320px}
+.match{display:grid;grid-template-columns:1fr;gap:10px;margin:10px 0}
+.match label{display:block;font-weight:700;margin-bottom:4px}
+.letters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.letter{width:38px;height:44px;border:2px solid var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:var(--accent);background:#fff8ef}
+.lock{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 0}
+.dial{display:flex;gap:10px}
+.wheel{display:flex;flex-direction:column;align-items:center;gap:4px}
+.wheel button{width:52px;padding:4px 0;font-size:1rem}
+.wheel .val{width:52px;height:60px;border-radius:10px;background:var(--dark);color:#ffd166;font-family:"Courier New",monospace;font-size:2rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.shake{animation:shake .4s}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.big{font-size:2.3rem;font-weight:700;text-align:center;margin:6px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.trans p{margin:0 0 8px}.trans b{color:var(--accent)}
+.small{font-size:.85rem;color:var(--dim)}
+footer{text-align:center;margin-top:24px}
+.ghost{background:transparent;border-color:transparent;color:var(--link);text-decoration:underline;padding:6px}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+@media (max-width:480px){body{font-size:16px}.wheel .val{width:44px;height:52px;font-size:1.7rem}.wheel button{width:44px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+
+const VIDEO_ID = 'Sps4wqX0Brg';
+const ROOMS = [
+ {name:'Raum 1 · Der Empfang', it:'Stanza 1 · L\'accoglienza', seg:[0,65],
+  lock:{type:'text', q:'Welche Sportart spielt Frau Müller seit vielen Jahren?', a:['handball'], hint:'Sie erzählt von ihrem Hobby im Verein. Es ist ein Ballsport mit der Hand.', seg:[15,40]},
+  puzzles:[
+   {type:'mc', q:'Warum ist Frau Müller extra etwas früher losgefahren?', opts:['Damit nichts schiefgehen kann.','Weil sie den Weg nicht kannte.','Weil ihr Zug Verspätung hatte.'], c:0, hint:'Hör auf den Nebensatz mit „damit“.', seg:[0,10]},
+   {type:'tf', q:'Richtig oder falsch? Alle Antworten müssen stimmen.', items:[['Nach der Schule hat Frau Müller direkt ein Praktikum gemacht.',true],['Frau Müller liest gern Krimis.',true],['Auf Englisch liest sie nur sehr schwierige Bücher.',false],['Sie kennt die Firma nur von der Homepage.',false]], hint:'Achte auf „ein bisschen niedriger“ und „auch in vielen Medienberichten“.', seg:[15,63]}
+  ]},
+ {name:'Raum 2 · Das Personalbüro', it:'Stanza 2 · L\'ufficio del personale', seg:[63,148],
+  lock:{type:'dial', n:1, q:'Welche Note hat Frau Müller in Mathematik?', a:'4', hint:'Die Personalerin hat die Noten angeschaut. In Deutschland ist 1 die beste Note und 6 die schlechteste.', seg:[126,148]},
+  puzzles:[
+   {type:'mc', q:'Was hat Frau Müller am Beruf Medienkauffrau gereizt?', opts:['Man verdient sehr gut.','Man lernt jeden Tag etwas Neues.','Man arbeitet meistens allein.'], c:1, hint:'Die Medienwelt verändert sich jeden Tag, also …', seg:[63,88]},
+   {type:'multi', q:'Was würde ihre beste Freundin über Frau Müller sagen? Wähle alle richtigen Wörter.', items:[['ehrgeizig',true],['hilfsbereit',true],['schüchtern',false],['teamfähig',true],['manchmal ungeduldig',true],['unpünktlich',false]], hint:'Vier Wörter sind richtig. Achte auch auf das Wort „manchmal“ am Ende.', seg:[86,117]},
+   {type:'mc', q:'Was waren ihre Lieblingsfächer in der Schule?', opts:['Mathe und Englisch','Deutsch und Sport','Sport und Kunst'], c:1, hint:'Die Antwort ist sehr kurz: „Das war … und …, das liegt mir einfach.“', seg:[116,128]}
+  ]},
+ {name:'Raum 3 · Die Sporthalle', it:'Stanza 3 · La palestra', seg:[126,197],
+  lock:{type:'letter', q:'Frau Müller trainiert die jüngsten Kinder im Verein. Welche Jugend ist das? Die __-Jugend.', a:'E', hint:'Sie sagt: „Trainer von der …-Jugend, also von der ganz niedrigsten Jugend.“', seg:[153,170]},
+  puzzles:[
+   {type:'mc', q:'Was macht Frau Müller, um in Mathe wieder besser zu werden?', opts:['Sie nimmt Nachhilfe.','Sie wechselt die Schule.','Sie macht gar nichts.'], c:0, hint:'„Ich bin aber auch schon in …“', seg:[130,148]},
+   {type:'tf', q:'Richtig oder falsch? Alle Antworten müssen stimmen.', items:[['Frau Müller hat im Verein alle Jugendmannschaften durchlaufen.',true],['Sie ist auch Jugendkoordinatorin.',true],['Sie organisiert keine Veranstaltungen.',false]], hint:'Hör auf „Also ich mache auch viele Veranstaltungen …“', seg:[153,170]},
+   {type:'gaps', q:'Frau Müller glaubt, dass sie für den Beruf geeignet ist, weil sie ehrgeizig, {0} und {1} ist.', choices:['pünktlich','modern','ruhig','weltoffen'], answers:['modern','weltoffen'], hint:'„Weil ich sehr ehrgeizig bin, … bin und auch selber … bin.“', seg:[169,190]}
+  ]},
+ {name:'Raum 4 · Das Chefbüro', it:'Stanza 4 · L\'ufficio del capo', seg:[195,240],
+  lock:{type:'dial', n:1, q:'Wie viele Azubis stellt die Firma in einem Jahr ein?', a:'5', hint:'Das ist Frau Müllers erste Frage am Ende des Gesprächs.', seg:[199,207]},
+  puzzles:[
+   {type:'mc', q:'Wie viele Urlaubstage bekommt man in der Firma?', opts:['20 Tage','25 Tage','30 Tage'], c:2, hint:'Die Firma hat einen Tarifvertrag. Hör auf die Zahl nach „da haben Sie …“', seg:[207,213]},
+   {type:'mc', q:'Welche Berufsschule besucht man bei dieser Firma?', opts:['die Schule direkt am Ort','eine Schule in einer anderen Stadt','Man kann zwischen zwei Schulen wählen.'], c:0, hint:'Frau Müller freut sich, dass sie „nicht woanders hinfahren“ muss.', seg:[213,228]},
+   {type:'mc', q:'Wie endet das Gespräch?', opts:['Frau Müller bekommt sofort die Stelle.','Die Firma meldet sich später bei ihr.','Frau Müller muss noch einen Test machen.'], c:1, hint:'Die letzten Worte der Personalerin: „… und wir …“', seg:[226,240]}
+  ]}
+];
+const FINAL = {q:'Die Ausgangstür hat ein Zahlenschloss mit vier Ziffern: Seit welchem Jahr ist Frau Müller im Handballverein?', a:'2006', hint:'Sie sagt: „Ich bin seit … jetzt im Verein.“ Es ist eine Jahreszahl.', seg:[146,170]};
+const PENALTY_HINT = 60, PENALTY_LOCK = 30;
+
+let G = null;
+const app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => s.toLowerCase().trim().replace(/[.,!?;:"„“]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const mmss = s => Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+function best(){ try { return +localStorage.getItem('escape_mueller_best') || 0; } catch(e){ return 0; } }
+function setBest(v){ try { localStorage.setItem('escape_mueller_best', v); } catch(e){} }
+
+/* ---------- YouTube (iframe semplice con start/end) ---------- */
+let curSeg = null;
+const ORIGIN = (location.origin && location.origin.startsWith('http')) ? '&origin=' + encodeURIComponent(location.origin) : '';
+function embedSrc(a, b, auto){ return `https://www.youtube.com/embed/${VIDEO_ID}?start=${a}&end=${b}&rel=0&playsinline=1&autoplay=${auto?1:0}${ORIGIN}`; }
+function ytLink(a){ return `https://www.youtube.com/watch?v=${VIDEO_ID}&t=${a}s`; }
+function mountPlayer(seg){
+  const host = document.getElementById('ytp'); if (!host) return;
+  curSeg = seg;
+  if (location.protocol === 'file:'){ host.innerHTML = '<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;padding:16px;text-align:center;font-size:.9rem">Aperto come file dal computer, YouTube non mostra il video (errore 153). Carica la pagina sul sito GitHub e aprila da lì.</div>'; const fl0 = document.getElementById('ytl'); if (fl0) fl0.innerHTML = `<a href="${ytLink(seg[0])}" target="_blank" rel="noopener">Apri su YouTube dal minuto ${mmss(seg[0])}</a> e fermalo a ${mmss(seg[1])}.`; return; }
+  host.innerHTML = `<iframe id="ytf" src="${embedSrc(seg[0], seg[1], false)}" title="Video: Bewerbungsgespräch" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  const fl = document.getElementById('ytl');
+  if (fl) fl.innerHTML = `Il video non parte? <a href="${ytLink(seg[0])}" target="_blank" rel="noopener">Aprilo su YouTube dal minuto ${mmss(seg[0])}</a> e fermalo a ${mmss(seg[1])}.`;
+}
+function stopAudio(){
+  const f = document.getElementById('ytf');
+  if (f && curSeg) f.src = embedSrc(curSeg[0], curSeg[1], false);
+}
+function playSeg(a, b){
+  const f = document.getElementById('ytf');
+  if (!f){ window.open(ytLink(a), '_blank', 'noopener'); return; }
+  curSeg = [a, b];
+  f.src = embedSrc(a, b, true);
+  const fl = document.getElementById('ytl');
+  if (fl) fl.innerHTML = `Il video non parte? <a href="${ytLink(a)}" target="_blank" rel="noopener">Aprilo su YouTube dal minuto ${mmss(a)}</a> e fermalo a ${mmss(b)}.`;
+  document.querySelector('.vid').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function listenBtn(label, seg){
+  const b = document.createElement('button'); b.className = 'listen'; b.textContent = label;
+  b.onclick = () => playSeg(seg[0], seg[1]); return b;
+}
+
+/* ---------- game state ---------- */
+const TRANSCRIPT = [{"t": "00:00", "sp": "Personalerin", "x": "Hallo, guten Tag, Frau Müller! Herzlich willkommen bei uns. Sie haben sich für uns beworben als Medienkauffrau. Haben Sie gut hergefunden, Frau Müller?"}, {"t": "00:05", "sp": "Frau Müller", "x": "Ja, danke, sehr gut. Ich bin extra etwas früher gefahren, damit auch wirklich nichts schiefgehen kann."}, {"t": "00:10", "sp": "Personalerin", "x": "Ach schön, Frau Müller! Ich möchte Sie bitten, dass Sie mir zunächst einfach mal ein bisschen erzählen, was Sie bisher so gemacht haben – einfach was über sich erzählen."}, {"t": "00:15", "sp": "Frau Müller", "x": "Also, ich war in der Schule, dann habe ich nach der Schule direkt ein Praktikum gehabt in einem Medienunternehmen. Und jetzt bin ich auf der Suche nach einer Ausbildung. Privat spiele ich Handball seit vielen Jahren und bin auch im Verein ansonsten sehr aktiv. Und ich lese sehr gerne, meistens Krimis oder auch auf Englisch manchmal Bücher, die dann vom Niveau ein bisschen niedriger sind, damit ich aber ein bisschen in die englische Sprache reinkomme."}, {"t": "00:40", "sp": "Personalerin", "x": "Gut. Warum haben Sie sich denn ausgerechnet bei uns beworben?"}, {"t": "00:46", "sp": "Frau Müller", "x": "Ich habe mir auf Ihrer Homepage viel angeguckt, die ist sehr, sehr gut gestaltet und sehr ansprechend. Und eben auch in vielen Medienberichten und Presseberichten habe ich viel über Sie gelesen und Ihr Unternehmen. Sie sind sehr innovativ und offen und ich habe einfach das Gefühl gehabt, dass ich hier sehr gut reinpassen würde und mich wohlfühlen würde."}, {"t": "01:03", "sp": "Personalerin", "x": "Schön! Und der Beruf Medienkauffrau – was hat Sie denn gereizt an diesem Beruf?"}, {"t": "01:08", "sp": "Frau Müller", "x": "Also, gereizt damals, als ich mir das Praktikum ausgesucht habe, was mir dann auch sehr gut gefallen hat, war, dass es ein sehr interessanter Beruf ist und ein vielseitiger Beruf, und dass man jeden Tag was Neues lernen kann, weil sich die Medienwelt natürlich auch jeden Tag verändert und man sich dann immer neu anpassen muss und neue Aufgaben bekommt."}, {"t": "01:26", "sp": "Personalerin", "x": "Gut, ja. Wenn ich Ihre beste Freundin fragen würde: „Frau Müller, beschreiben Sie mir die Frau Müller“, was würde die beste Freundin mir erzählen?"}, {"t": "01:33", "sp": "Frau Müller", "x": "Die würde sagen, dass ich sehr ehrgeizig bin und an meine Ziele glaube und die auch unbedingt erreichen will, wenn ich mir die gesetzt habe. Dass ich sehr hilfsbereit und teamfähig bin und dass ich gut zuhören kann und Konflikte auch lösen kann, wenn die mal aufgetreten sind. Und manchmal bin ich vielleicht ein bisschen ungeduldig und zu ehrgeizig, aber das kann ich auch meistens dann gut zurückschrauben."}, {"t": "01:56", "sp": "Personalerin", "x": "Okay, ich habe mir Ihre Noten angeschaut, Frau Müller, die spielen auch eine Rolle. Ich hätte von Ihnen gern gewusst: Was war denn Ihr Lieblingsfach in der Schule?"}, {"t": "02:04", "sp": "Frau Müller", "x": "Das war Deutsch und Sport, das liegt mir einfach, ja."}, {"t": "02:08", "sp": "Personalerin", "x": "Okay, ja. Mathematik, habe ich gesehen, haben Sie eine Vier. An was lag's denn?"}, {"t": "02:11", "sp": "Frau Müller", "x": "Ja, also Mathe ist gar nicht so mein Fach und ich lerne wirklich viel und probiere alles, aber in der Arbeit... das Thema lag mir einfach irgendwie nicht und dann bin ich leider von der Drei auf die Vier abgerutscht. Ich bin aber auch schon in Nachhilfe jetzt, weil ich unbedingt wieder auf die Drei kommen will."}, {"t": "02:26", "sp": "Personalerin", "x": "Okay. Ja, Sie haben geschrieben und erzählt, dass Sie Handball spielen. Wie kann ich mir das vorstellen, wie lange sind Sie schon im Verein?"}, {"t": "02:33", "sp": "Frau Müller", "x": "Ich bin seit 2006 jetzt im Verein, bin da jede Jugend durchlaufen und bin auch selber Trainer von der E-Jugend, also von der ganz niedrigsten Jugend, und bin auch Jugendkoordinator. Also ich mache auch viele Veranstaltungen eben für die Jugend, dass die alle zusammen mal wieder was machen."}, {"t": "02:49", "sp": "Personalerin", "x": "Okay, gut. Noch eine Frage: Warum denken Sie, dass ausgerechnet Sie für diesen Beruf geeignet sind?"}, {"t": "02:56", "sp": "Frau Müller", "x": "Weil ich sehr ehrgeizig bin, modern bin und auch selber weltoffen bin, was man glaube ich für die Branche sehr braucht. Und ich mich gut an neue Situationen anpassen kann und neue Aufgaben... Und man die, wie ich eben schon gesagt habe, glaube ich in dieser Branche jeden Tag hat und man sich dann einfach jeden Tag auf was Neues einstellen kann und mit der Zeit wachsen kann."}, {"t": "03:15", "sp": "Personalerin", "x": "Gut, vielen Dank! Haben Sie denn noch Fragen an uns, Frau Müller?"}, {"t": "03:19", "sp": "Frau Müller", "x": "Ja, ich würde vielleicht gern wissen: Wie viele Azubis stellen Sie denn ein in einem Jahr?"}, {"t": "03:24", "sp": "Personalerin", "x": "Wir stellen fünf Azubis ein."}, {"t": "03:27", "sp": "Frau Müller", "x": "Und wie viele Urlaubstage bekommt man bei Ihnen?"}, {"t": "03:30", "sp": "Personalerin", "x": "Wir sind im Tarifvertrag und da haben Sie 30 Tage Urlaub."}, {"t": "03:33", "sp": "Frau Müller", "x": "Super. Und mit welcher Schule kooperieren Sie? Ich habe gesehen, hier in der Nähe gibt's zwei, die den Beruf anbieten."}, {"t": "03:39", "sp": "Personalerin", "x": "Wir haben die Schule hier direkt am Ort als Kooperationspartner. Das wäre dann auch Ihre Berufsschule."}, {"t": "03:44", "sp": "Frau Müller", "x": "Das ist natürlich super, nicht woanders hinfahren extra. Genau, ja."}, {"t": "03:48", "sp": "Personalerin", "x": "Gut, gut. Dann vielen Dank, Frau Müller, für das angenehme Gespräch und wir melden uns."}, {"t": "03:54", "sp": "Frau Müller", "x": "Danke, tschüss!"}, {"t": "03:55", "sp": "Personalerin", "x": "Tschüss, auf Wiedersehen!"}];
+function newGame(){ G = {room:0, step:0, hints:0, penalty:0, start:Date.now(), timer:null}; }
+function elapsed(){ return Math.floor((Date.now()-G.start)/1000) + G.penalty; }
+function tick(){ const t = document.getElementById('time'); if (t) t.textContent = fmt(elapsed()); }
+function hud(){
+  const doors = ROOMS.map((r,i) => `<div class="door ${i<G.room?'open':''} ${i===G.room?'cur':''}" title="${esc(r.name)}">${i<G.room?'✓':i+1}</div>`).join('') + `<div class="door ${G.room===ROOMS.length?'cur':''}" title="Ausgang">🚪</div>`;
+  const keys = ROOMS.map((r,i) => `<div class="digit" title="${esc(r.name)}">${i<G.room?'🔑':'·'}</div>`).join('');
+  return `<div class="hud"><div class="doors">${doors}</div><div>⏱ <span class="time" id="time">${fmt(elapsed())}</span></div><div class="small" id="hc" style="color:#cfd5db">Tipps: ${G.hints}</div></div>
+  <div class="notes"><strong>🗝️ Schlüssel:</strong> ${keys} <span class="small">Mit allen vier Schlüsseln erreichst du die Ausgangstür.</span></div>`;
+}
+function intro(){
+  stopAudio();
+  const b = best();
+  app.innerHTML = `<div class="panel" style="text-align:center"><div class="big">🔒</div>
+    <h1>Escape Room: Das Vorstellungsgespräch von Frau Müller</h1>
+    <p class="it">Escape room su un colloquio di lavoro autentico · Livello B1</p></div>
+    <div class="panel">
+    <p>Frau Müller möchte eine Ausbildung als Medienkauffrau machen. Du schaust ihr Vorstellungsgespräch an, aber plötzlich ist die Tür zu! Um hinauszukommen, gehst du durch <strong>vier Räume</strong>. In jedem Raum siehst du einen Teil des Videos und löst Rätsel. Am Ende jedes Raums öffnest du ein Schloss und bekommst einen Schlüssel. An der Ausgangstür wartet das letzte Zahlenschloss.</p>
+    <p class="it">Frau Müller vuole diventare Medienkauffrau. Guardi il suo colloquio, ma all'improvviso la porta si chiude! Per uscire attraversi quattro stanze: in ognuna guardi una parte del video e risolvi gli enigmi. Alla fine di ogni stanza apri un lucchetto e ricevi una chiave. Alla porta d'uscita ti aspetta l'ultimo lucchetto.</p>
+    <p>💡 Ein Tipp kostet <strong>60 Sekunden</strong>, ein falscher Code am Schloss <strong>30 Sekunden</strong>.</p>
+    <p class="it">Un aiuto costa 60 secondi, un codice sbagliato al lucchetto 30 secondi.</p>
+    ${b?`<p class="small">Deine Bestzeit: ${fmt(b)}</p>`:''}
+    <p class="small">🎧 Usa le cuffie. Serve la connessione a Internet per il video.</p>
+    <button class="primary" id="go">Spiel starten</button></div>
+    <p class="small" style="text-align:center">Video: „Bewerbungsgespräch: richtig“ · MOJO – Motiviert in den Job (YouTube)</p>`;
+  document.getElementById('go').onclick = () => { newGame(); G.timer = setInterval(tick, 1000); room(); };
+}
+function videoPanel(title, it, seg, label){
+  return `<div class="panel"><div class="room-tag">${esc(title)}</div><p class="it" style="margin-top:0">${esc(it)}</p>
+    <p>Schau diesen Teil des Videos (${mmss(seg[0])}–${mmss(seg[1])}). Du kannst ihn so oft sehen, wie du willst.<br><span class="it">Guarda questa parte del video, tutte le volte che vuoi.</span></p>
+    <div class="vid"><div id="ytp"></div></div><p class="small" id="ytl"></p><div id="lb"></div></div><div class="panel" id="pz"></div>`;
+}
+function room(){
+  stopAudio();
+  if (G.room >= ROOMS.length) return finalRoom();
+  const R = ROOMS[G.room], total = R.puzzles.length + 1;
+  app.innerHTML = hud() + videoPanel(R.name, R.it, R.seg);
+  mountPlayer(R.seg);
+  document.getElementById('lb').appendChild(listenBtn('▶ Diesen Teil abspielen', R.seg));
+  const pz = document.getElementById('pz');
+  if (G.step < R.puzzles.length) puzzle(pz, R.puzzles[G.step], `Rätsel ${G.step+1} von ${total}`, () => { G.step++; nextStep(); });
+  else lock(pz, R.lock, `Rätsel ${total} von ${total} · Das Schloss`, () => { G.room++; G.step = 0; room(); }, G.room < ROOMS.length-1 ? 'In den nächsten Raum' : 'Zur Ausgangstür');
+}
+function nextStep(){
+  const R = ROOMS[G.room], pz = document.getElementById('pz'), total = R.puzzles.length + 1;
+  stopAudio();
+  if (G.step < R.puzzles.length) puzzle(pz, R.puzzles[G.step], `Rätsel ${G.step+1} von ${total}`, () => { G.step++; nextStep(); });
+  else lock(pz, R.lock, `Rätsel ${total} von ${total} · Das Schloss`, () => { G.room++; G.step = 0; room(); }, G.room < ROOMS.length-1 ? 'In den nächsten Raum' : 'Zur Ausgangstür');
+  pz.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function hintRow(container, P){
+  const d = document.createElement('div'); d.className = 'row'; d.style.marginTop = '8px';
+  const hb = document.createElement('button'); hb.className = 'hint'; hb.textContent = '💡 Tipp (+60 s)';
+  const box = document.createElement('div'); box.style.width = '100%';
+  hb.onclick = () => {
+    G.hints++; G.penalty += PENALTY_HINT; tick(); hb.disabled = true;
+    box.innerHTML = `<div class="fb info">${esc(P.hint)}</div>`;
+    if (P.seg){ const r = document.createElement('div'); r.className='row'; r.appendChild(listenBtn(`▶ Diese Stelle ansehen (${mmss(P.seg[0])})`, P.seg)); box.appendChild(r); }
+    const hc = document.getElementById('hc'); if (hc) hc.textContent = 'Tipps: '+G.hints;
+  };
+  d.appendChild(hb); container.appendChild(d); container.appendChild(box);
+}
+function solved(pz, next, text, label){
+  const fb = pz.querySelector('.fbz');
+  fb.innerHTML = `<div class="fb ok">✅ ${text||'Richtig! Das Rätsel ist gelöst.'}</div>`;
+  const b = document.createElement('button'); b.className = 'primary'; b.textContent = label || 'Weiter'; b.onclick = next; fb.appendChild(b);
+  pz.querySelectorAll('.hint').forEach(h => h.disabled = true);
+}
+function wrong(pz, msg){
+  const fb = pz.querySelector('.fbz');
+  fb.innerHTML = `<div class="fb ko">${msg||'Noch nicht richtig. Schau noch einmal und versuch es wieder.<br><span class="it">Non ancora. Riguarda e riprova.</span>'}</div>`;
+  pz.classList.remove('shake'); void pz.offsetWidth; pz.classList.add('shake');
+}
+function puzzle(pz, P, step, next){
+  pz.innerHTML = `<div class="step">${step}</div>`;
+  const body = document.createElement('div'); pz.appendChild(body);
+  if (P.type === 'mc'){
+    body.innerHTML = `<p><strong>${esc(P.q)}</strong></p><div class="opts">${P.opts.map((o,i)=>`<button class="opt" data-i="${i}">${'abc'[i]}) ${esc(o)}</button>`).join('')}</div>`;
+    body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+      if (+b.dataset.i === P.c){ b.classList.add('right'); body.querySelectorAll('.opt').forEach(x=>x.disabled=true); solved(pz, next); }
+      else { b.classList.add('wrong'); b.disabled = true; wrong(pz); }
+    });
+  }
+  if (P.type === 'tf'){
+    const sel = {};
+    body.innerHTML = `<p><strong>${esc(P.q)}</strong></p>` + P.items.map((it,i)=>`<div class="tf"><span>${esc(it[0])}</span><span class="btns"><button data-i="${i}" data-v="1">richtig</button><button data-i="${i}" data-v="0">falsch</button></span></div>`).join('') + `<div style="margin-top:10px"><button class="primary" id="chk">Prüfen</button></div>`;
+    body.querySelectorAll('.tf button').forEach(b => b.onclick = () => { sel[b.dataset.i] = b.dataset.v==='1'; body.querySelectorAll(`.tf button[data-i="${b.dataset.i}"]`).forEach(x=>x.classList.toggle('sel', x===b)); });
+    body.querySelector('#chk').onclick = () => {
+      if (Object.keys(sel).length < P.items.length) return wrong(pz, 'Wähle bei jedem Satz „richtig“ oder „falsch“.<br><span class="it">Scegli per ogni frase.</span>');
+      const n = P.items.filter((it,i)=>sel[i]===it[1]).length;
+      if (n === P.items.length){ body.querySelector('#chk').disabled = true; solved(pz, next); }
+      else wrong(pz, `${n} von ${P.items.length} sind richtig. Das Schloss bleibt zu: schau noch einmal!<br><span class="it">${n} su ${P.items.length} giuste: riguarda e correggi.</span>`);
+    };
+  }
+  if (P.type === 'multi'){
+    const items = shuffle(P.items.map((it,i)=>[...it,i]));
+    body.innerHTML = `<p><strong>${esc(P.q)}</strong></p><div>${items.map(it=>`<label class="chk"><input type="checkbox" data-i="${it[2]}"> ${esc(it[0])}</label>`).join('')}</div><div style="margin-top:10px"><button class="primary" id="chk">Prüfen</button></div>`;
+    body.querySelector('#chk').onclick = () => {
+      const ok = P.items.every((it,i) => body.querySelector(`input[data-i="${i}"]`).checked === it[1]);
+      if (ok){ body.querySelector('#chk').disabled = true; solved(pz, next); }
+      else wrong(pz, 'Noch nicht ganz: Es fehlt ein Wort, oder ein Wort ist zu viel.<br><span class="it">Non ancora: manca una parola o ce n\'è una di troppo.</span>');
+    };
+  }
+  if (P.type === 'gaps'){
+    const opts = `<option value="">– wählen –</option>` + P.choices.map(c=>`<option>${esc(c)}</option>`).join('');
+    const html = esc(P.q).replace(/\{(\d)\}/g, (m,k)=>`<select id="g${k}" aria-label="Lücke ${+k+1}">${opts}</select>`);
+    body.innerHTML = `<p style="line-height:2.4">${html}</p><button class="primary" id="chk">Prüfen</button>`;
+    body.querySelector('#chk').onclick = () => {
+      const ok = P.answers.every((a,k)=>body.querySelector('#g'+k).value===a);
+      if (ok){ body.querySelector('#chk').disabled = true; solved(pz, next); } else wrong(pz);
+    };
+  }
+  const fbz = document.createElement('div'); fbz.className = 'fbz'; pz.appendChild(fbz);
+  hintRow(pz, P);
+}
+const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function dialHTML(n, letters){
+  let h = '<div class="dial">';
+  for (let i=0;i<n;i++) h += `<div class="wheel"><button data-w="${i}" data-d="1" aria-label="Rad ${i+1} vor">▲</button><div class="val" id="w${i}">${letters?'A':'0'}</div><button data-w="${i}" data-d="-1" aria-label="Rad ${i+1} zurück">▼</button></div>`;
+  return h + '</div>';
+}
+function wireDial(root, vals, letters){
+  const m = letters ? 26 : 10;
+  root.querySelectorAll('.wheel button').forEach(b => b.onclick = () => { const i = +b.dataset.w; vals[i] = (vals[i] + +b.dataset.d + m) % m; root.querySelector('#w'+i).textContent = letters ? ABC[vals[i]] : vals[i]; });
+}
+function lock(pz, L, step, next, label){
+  const letters = L.type === 'letter', n = L.type === 'text' ? 0 : (L.n || 1), vals = Array(n).fill(0);
+  pz.innerHTML = `<div class="step">${step}</div><p><strong>🔒 ${esc(L.q)}</strong></p>
+    <p class="it">${L.type==='text'?'Scrivi la parola per aprire il lucchetto.':'Imposta il lucchetto con le frecce.'}</p>
+    <div class="lock">${L.type==='text' ? '<input type="text" id="lw" autocomplete="off" spellcheck="false" aria-label="Lösungswort">' : dialHTML(n, letters)}<button class="primary" id="op">Schloss öffnen</button></div><div class="fbz"></div>`;
+  if (n) wireDial(pz, vals, letters);
+  const value = () => L.type === 'text' ? pz.querySelector('#lw').value : vals.map(v => letters ? ABC[v] : v).join('');
+  const check = () => {
+    const v = value();
+    if (L.type === 'text' && !v.trim()) return;
+    const ok = L.type === 'text' ? L.a.some(a => norm(a) === norm(v)) : v === L.a;
+    if (ok){ pz.querySelector('#op').disabled = true; solved(pz, next, '🔓 Das Schloss ist offen! Du bekommst einen Schlüssel.', label); }
+    else { G.penalty += PENALTY_LOCK; tick(); wrong(pz, 'Das Schloss bleibt zu (+30 Sekunden).<br><span class="it">Il lucchetto resta chiuso (+30 secondi).</span>'); }
+  };
+  pz.querySelector('#op').onclick = check;
+  if (L.type === 'text') pz.querySelector('#lw').onkeydown = e => { if (e.key === 'Enter') check(); };
+  hintRow(pz, L);
+}
+function finalRoom(){
+  stopAudio();
+  app.innerHTML = hud() + videoPanel('Die Ausgangstür', 'La porta d\'uscita', FINAL.seg);
+  mountPlayer(FINAL.seg);
+  document.getElementById('lb').appendChild(listenBtn('▶ Diesen Teil abspielen', FINAL.seg));
+  lock(document.getElementById('pz'), {type:'dial', n:4, q:FINAL.q, a:FINAL.a, hint:FINAL.hint, seg:FINAL.seg}, 'Das letzte Schloss', win, '🚪 Tür öffnen');
+}
+function win(){
+  stopAudio(); clearInterval(G.timer);
+  const t = elapsed(), b = best(), rec = !b || t < b; if (rec) setBest(t);
+  app.innerHTML = `<div class="panel" style="text-align:center"><div class="big">🎉🚪</div><h1>Geschafft! Du bist frei!</h1><p class="it">Ce l'hai fatta! Sei uscito dalla escape room.</p>
+    <div class="big">${fmt(t)}</div><p class="small">Tipps: ${G.hints} · ${rec?'Neue Bestzeit!':'Bestzeit: '+fmt(b)}</p>
+    <div class="row" style="justify-content:center"><button class="primary" id="again">Noch einmal spielen</button><button id="tr">📄 Ganzes Gespräch lesen</button></div></div>
+    <div class="panel trans" id="trans" style="display:none"></div>`;
+  document.getElementById('again').onclick = intro;
+  document.getElementById('tr').onclick = () => {
+    const tr = document.getElementById('trans'); tr.style.display = 'block';
+    tr.innerHTML = '<h2>Das Gespräch</h2>' + TRANSCRIPT.map(l => `<p><span class="small">${esc(l.t)}</span> <b>${esc(l.sp)}:</b> ${esc(l.x)}</p>`).join('');
+  };
+}
+intro();
+
+</script>
+</body>
+</html>
