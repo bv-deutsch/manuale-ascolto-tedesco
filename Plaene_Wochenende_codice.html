@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codice – Pläne fürs Wochenende</title>
+<style>
+:root{--bg:#f7f5ef;--panel:#fff;--text:#262626;--dim:#5b5b54;--bd:#c7c2b3;--acc:#1f5c99;--code:#f1efe6}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--panel:#262624;--text:#eee;--dim:#b5b5ad;--bd:#4a4a44;--acc:#7fb4ea;--code:#1a1a18}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Verdana,system-ui,sans-serif;line-height:1.55}
+main{max-width:900px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.4rem;margin:0 0 8px}p,li{color:var(--dim);font-size:.95rem}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;position:sticky;top:0;background:var(--bg);padding:8px 0}
+button,a.btn{font:inherit;font-weight:bold;background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;text-decoration:none}
+@media(prefers-color-scheme:dark){button,a.btn{color:#111}}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:14px;overflow:auto;max-height:70vh;font:13px/1.5 "Courier New",monospace;color:var(--text);white-space:pre}
+#msg{align-self:center;color:var(--dim);font-size:.9rem}
+</style></head><body><main>
+<h1>Codice dell’app «Pläne fürs Wochenende»</h1>
+<p>Codice completo (HTML, CSS, JavaScript) dell’esercitazione descritta nel Capitolo 7 del manuale. Puoi copiarlo e salvarlo come file <b>.html</b>.</p>
+<ol>
+<li>Premi <b>Copia il codice</b> (oppure «Scarica .html»).</li>
+<li>Incolla in un editor di testo e salva come <code>esercitazione.html</code>.</li>
+<li>Al posto di <code>&lt;BASE64_AUDIO_QUI&gt;</code> inserisci il tuo file audio MP3 codificato in base64 (per esempio con un convertitore online o chiedendo all’IA); poi apri il file nel browser.</li>
+</ol>
+<div class="bar"><button id="c">Copia il codice</button><a class="btn" id="d" download="esercitazione.html">Scarica .html</a><span id="msg"></span></div>
+<pre id="code">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;de&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+&lt;title&gt;Pläne fürs Wochenende – Hörtraining&lt;/title&gt;
+&lt;style&gt;
+  :root{
+    --bg: #f7f5ef; --panel-bg: #ffffff; --text: #262626; --text-dim: #5b5b54;
+    --border: #c7c2b3; --accent: #9c5b16; --link: #1f6f8b;
+    --coral: #d9704f; --sky: #2f8fa6; --green-ok: #3f9e64; --red-no: #c8453a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:&quot;Verdana&quot;,&quot;Arial&quot;,&quot;Helvetica Neue&quot;,Arial,sans-serif;
+    font-size:17px; line-height:1.6; letter-spacing:0.2px;
+    display:flex; justify-content:center; padding:24px 16px 60px;
+  }
+  #app{ width:100%; max-width:680px; }
+  h1{ font-size:1.5rem; text-align:center; margin:4px 0 4px; }
+  .subtitle{ text-align:center; color:var(--text-dim); font-size:0.92rem; margin:0 0 20px; }
+  .levelmap{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; row-gap:10px; margin-bottom:24px; }
+  .node-wrap{ display:flex; align-items:center; }
+  .node{
+    width:42px; height:42px; border-radius:50%; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:0.95rem; font-weight:700;
+    color:var(--text-dim); background:var(--panel-bg); flex-shrink:0;
+  }
+  .node.unlocked{ border-color:var(--sky); color:var(--text); cursor:pointer; }
+  .node.current{ border-color:var(--accent); color:var(--accent); border-width:3px; }
+  .node.done{ border-color:var(--green-ok); background:rgba(63,158,100,0.12); color:var(--green-ok); border-width:3px; }
+  .connector{ width:16px; height:0; border-top:2px solid var(--border); }
+  .partlabel{ text-align:center; font-weight:700; color:var(--accent); margin-bottom:6px; }
+  .levelsub{ text-align:center; color:var(--text-dim); font-size:0.88rem; margin-bottom:14px; }
+  .panel{ border:2px solid var(--border); border-radius:14px; padding:24px 20px; text-align:center; background:var(--panel-bg); }
+  .panel h2{ font-size:1.25rem; margin:0 0 10px; color:var(--accent); }
+  .panel p{ color:var(--text); text-align:left; margin:0 0 14px; }
+  .panel p.center{ text-align:center; }
+  button{ font-family:inherit; cursor:pointer; }
+  .btn-primary{ background:var(--coral); color:#fff; border:none; font-weight:700; font-size:1rem; padding:12px 26px; border-radius:30px; }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn-ghost{ background:transparent; border:2px solid var(--border); color:var(--text); font-weight:600; padding:9px 20px; border-radius:30px; }
+  .hud{ display:flex; justify-content:space-between; font-size:0.88rem; color:var(--text-dim); margin-bottom:10px; }
+  .progress-dots{ display:flex; gap:6px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+  .dot{ width:10px; height:10px; border-radius:50%; background:#e3ddcc; border:1px solid var(--border); }
+  .dot.filled{ background:var(--sky); border-color:var(--sky); }
+  .dot.wrong{ background:var(--red-no); border-color:var(--red-no); }
+  .native-audio{ width:100%; margin-bottom:10px; }
+  .listen-gate{ font-size:0.9rem; color:var(--accent); font-weight:700; margin-bottom:14px; min-height:20px; }
+  .options{ display:flex; flex-direction:column; gap:10px; }
+  .option{ border:2px solid var(--border); background:var(--panel-bg); color:var(--text); font-size:1rem; font-weight:700; padding:13px 14px; border-radius:12px; text-align:left; }
+  .option:disabled{ opacity:0.5; cursor:not-allowed; }
+  .option.correct{ background:rgba(63,158,100,0.15); border-color:var(--green-ok); color:#215c39; }
+  .option.wrong{ background:rgba(200,69,58,0.13); border-color:var(--red-no); color:#8f2f27; }
+  .tf-row{ display:flex; gap:12px; }
+  .tf-row .option{ flex:1; text-align:center; }
+  .feedback-box{ margin-top:14px; padding:12px 14px; border-radius:10px; text-align:left; font-size:0.92rem; display:none; }
+  .feedback-box.show{ display:block; }
+  .feedback-box.ok{ background:rgba(63,158,100,0.12); border:1px solid var(--green-ok); color:#215c39; }
+  .feedback-box.ko{ background:rgba(200,69,58,0.1); border:1px solid var(--red-no); color:#8f2f27; }
+  .feedback-box .ref{ font-style:italic; margin-top:6px; }
+  footer.hint{ text-align:center; color:var(--text-dim); font-size:0.8rem; margin-top:20px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;app&quot;&gt;
+  &lt;h1&gt;Pläne fürs Wochenende&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;Hörtraining autonomo — ascolta, poi rispondi&lt;/p&gt;
+  &lt;div class=&quot;levelmap&quot; id=&quot;levelmap&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;screen&quot;&gt;&lt;/div&gt;
+  &lt;footer class=&quot;hint&quot; id=&quot;hint&quot;&gt;&lt;/footer&gt;
+&lt;/div&gt;
+&lt;script&gt;
+const DATA =
+{&quot;clip&quot;: &quot;&lt;BASE64_AUDIO_QUI&gt;&quot;, &quot;levels&quot;: [{&quot;id&quot;: 1, &quot;name&quot;: &quot;Cosa significa davvero?&quot;, &quot;short&quot;: &quot;Livello 1&quot;, &quot;info_it&quot;: &quot;Ascolta prima il dialogo per intero, poi scegli il vero significato di ogni risposta indiretta.&quot;, &quot;passScore&quot;: 8, &quot;totalQ&quot;: 10, &quot;items&quot;: [{&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Ich habe leider keine Zeit\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie kann nicht ins Kino kommen&quot;, &quot;Sie kommt später ins Kino&quot;, &quot;Sie hat schon eine Kinokarte&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe leider keine Zeit, meine Oma kommt zu Besuch.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Vielleicht, mal sehen, wie es mir geht\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie ist sich noch nicht sicher&quot;, &quot;Sie kommt sicher am Sonntag&quot;, &quot;Sie hat schon Pläne für Sonntag&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Vielleicht, mal sehen, wie es mir geht.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Ich habe schon fast alles fertig\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie hat die Hausaufgaben fast beendet&quot;, &quot;Sie hat noch nichts gemacht&quot;, &quot;Sie braucht Hilfe von Lukas&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe schon fast alles fertig.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Na ja, es geht\&quot; (über die Hausaufgaben)?&quot;, &quot;opts&quot;: [&quot;Es war nicht ganz einfach&quot;, &quot;Es war sehr leicht&quot;, &quot;Sie hat die Aufgabe nicht verstanden&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Na ja, es geht, ich hatte noch viele Fragen.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Es regnet doch den ganzen Samstag\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie können nicht spazieren gehen&quot;, &quot;Sie gehen trotzdem spazieren&quot;, &quot;Das Wetter wird am Nachmittag besser&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Es regnet doch den ganzen Samstag!&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Ich habe schon mit meiner Schwester gegessen\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie will keine Pizza mehr essen&quot;, &quot;Sie hat noch Hunger auf Pizza&quot;, &quot;Sie isst gern mit Lukas&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe schon mit meiner Schwester gegessen.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Mal sehen, ich bin ziemlich müde von der Woche\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie ist nicht sicher, ob sie den Film schaut&quot;, &quot;Sie freut sich sehr auf den Film&quot;, &quot;Sie schläft schon den ganzen Tag&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Mal sehen, ich bin ziemlich müde von der Woche.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Frag mich bitte nicht danach\&quot;?&quot;, &quot;opts&quot;: [&quot;Ihr Tag war nicht gut&quot;, &quot;Ihr Tag war wunderbar&quot;, &quot;Sie hat den Tag vergessen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Frag mich bitte nicht danach.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Na ja, es geht\&quot; (über den Tag)?&quot;, &quot;opts&quot;: [&quot;Es war kein guter Tag, aber sie will nicht mehr darüber reden&quot;, &quot;Es war ein fantastischer Tag&quot;, &quot;Sie hat den Tag nicht verstanden&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Na ja, es geht, aber ich will nicht mehr daran denken.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Gute Idee, dann sehen wir, was wir machen\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie haben noch keinen festen Plan&quot;, &quot;Sie haben schon alles genau geplant&quot;, &quot;Sie treffen sich sicher nicht&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Okay, dann reden wir am Wochenende weiter. — Gute Idee, dann sehen wir, was wir machen.&quot;}]}, {&quot;id&quot;: 2, &quot;name&quot;: &quot;Richtig oder falsch&quot;, &quot;short&quot;: &quot;Livello 2&quot;, &quot;info_it&quot;: &quot;Ascolta prima il dialogo per intero, poi decidi per ogni frase: vero o falso.&quot;, &quot;passScore&quot;: 8, &quot;totalQ&quot;: 10, &quot;items&quot;: [{&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia hat schon feste Pläne für das Wochenende.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Keine Ahnung, hast du schon Pläne?&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia kann nicht ins Kino kommen, weil ihre Oma zu Besuch kommt.&quot;, &quot;correct&quot;: true, &quot;ref&quot;: &quot;Ich habe leider keine Zeit, meine Oma kommt zu Besuch.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia ist sicher, dass sie Lukas am Sonntag trifft.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Vielleicht, mal sehen, wie es mir geht.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia hat ihre Hausaufgaben noch nicht angefangen.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Ich habe schon fast alles fertig.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia hatte bei den Hausaufgaben noch Fragen.&quot;, &quot;correct&quot;: true, &quot;ref&quot;: &quot;Na ja, es geht, ich hatte noch viele Fragen.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Lukas und Mia gehen am Samstag spazieren.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Es regnet doch den ganzen Samstag!&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia hat noch keine Pizza gegessen.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Ich habe schon mit meiner Schwester gegessen.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia ist sich nicht sicher, ob sie abends einen Film schaut.&quot;, &quot;correct&quot;: true, &quot;ref&quot;: &quot;Mal sehen, ich bin ziemlich müde von der Woche.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia erzählt gern und ausführlich, wie ihr Tag war.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Frag mich bitte nicht danach.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Am Ende haben Lukas und Mia schon einen festen Plan für das Wochenende.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Okay, dann reden wir am Wochenende weiter. — Gute Idee, dann sehen wir, was wir machen.&quot;}]}, {&quot;id&quot;: 3, &quot;name&quot;: &quot;Details zum Dialog&quot;, &quot;short&quot;: &quot;Livello 3&quot;, &quot;info_it&quot;: &quot;Ascolta prima il dialogo per intero, poi rispondi alle domande di dettaglio.&quot;, &quot;passScore&quot;: 8, &quot;totalQ&quot;: 10, &quot;items&quot;: [{&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Wer kommt bei Mia zu Besuch?&quot;, &quot;opts&quot;: [&quot;Ihre Oma&quot;, &quot;Ihre Schwester&quot;, &quot;Ihr Freund&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe leider keine Zeit, meine Oma kommt zu Besuch.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was wollte Lukas am Samstag machen?&quot;, &quot;opts&quot;: [&quot;Ins Kino gehen&quot;, &quot;Spazieren gehen&quot;, &quot;Pizza essen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Hast du Lust, samstags ins Kino zu gehen?&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was wollten Lukas und Mia zusammen machen?&quot;, &quot;opts&quot;: [&quot;Hausaufgaben machen&quot;, &quot;Einkaufen gehen&quot;, &quot;Fernsehen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Wollen wir zusammen Hausaufgaben machen?&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Warum können sie nicht spazieren gehen?&quot;, &quot;opts&quot;: [&quot;Es regnet&quot;, &quot;Es ist zu kalt&quot;, &quot;Mia hat keine Zeit&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Es regnet doch den ganzen Samstag!&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was schlägt Lukas als Alternative vor, nachdem sie nicht spazieren gehen können?&quot;, &quot;opts&quot;: [&quot;Pizza bei ihm&quot;, &quot;Ins Kino gehen&quot;, &quot;Hausaufgaben machen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Stimmt. Vielleicht Pizza bei mir?&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Mit wem hat Mia schon gegessen?&quot;, &quot;opts&quot;: [&quot;Mit ihrer Schwester&quot;, &quot;Mit ihrer Oma&quot;, &quot;Mit Lukas&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe schon mit meiner Schwester gegessen.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was schlägt Lukas für den Abend vor?&quot;, &quot;opts&quot;: [&quot;Einen Film zu Hause&quot;, &quot;Ins Kino gehen&quot;, &quot;Spazieren gehen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Dann am Abend ein Film zu Hause?&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Wie beschreibt Mia indirekt ihren Tag?&quot;, &quot;opts&quot;: [&quot;Nicht besonders gut&quot;, &quot;Sehr schön&quot;, &quot;Ganz normal&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Frag mich bitte nicht danach.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Wer schlägt vor, am Wochenende weiterzureden?&quot;, &quot;opts&quot;: [&quot;Lukas&quot;, &quot;Mia&quot;, &quot;Beide gleichzeitig&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Okay, dann reden wir am Wochenende weiter.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Worüber sprechen Lukas und Mia im ganzen Dialog?&quot;, &quot;opts&quot;: [&quot;Über ihre Pläne für das Wochenende&quot;, &quot;Über die Schule&quot;, &quot;Über ihre Familien&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Lukas und Mia sprechen über ihre Pläne für das Wochenende.&quot;}]}, {&quot;id&quot;: 4, &quot;name&quot;: &quot;Simulation komplett&quot;, &quot;short&quot;: &quot;Livello 4&quot;, &quot;info_it&quot;: &quot;Prova finale: ascolta il dialogo per intero, poi rispondi a domande miste su significato, vero/falso e dettagli.&quot;, &quot;passScore&quot;: 8, &quot;totalQ&quot;: 10, &quot;items&quot;: [{&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Ich habe leider keine Zeit\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie kann nicht ins Kino kommen&quot;, &quot;Sie kommt später ins Kino&quot;, &quot;Sie hat schon eine Kinokarte&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe leider keine Zeit, meine Oma kommt zu Besuch.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia hat am Samstag Zeit für das Kino.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Ich habe leider keine Zeit, meine Oma kommt zu Besuch.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was passiert bei Mia am Wochenende?&quot;, &quot;opts&quot;: [&quot;Ihre Oma kommt zu Besuch&quot;, &quot;Ihre Schwester zieht um&quot;, &quot;Sie hat eine Prüfung&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Ich habe leider keine Zeit, meine Oma kommt zu Besuch.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Es regnet doch den ganzen Samstag\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie können nicht spazieren gehen&quot;, &quot;Sie gehen trotzdem spazieren&quot;, &quot;Das Wetter wird besser&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Es regnet doch den ganzen Samstag!&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Am Ende des Dialogs haben Lukas und Mia einen festen Plan.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Okay, dann reden wir am Wochenende weiter. — Gute Idee, dann sehen wir, was wir machen.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Wer schlägt die Pizza vor?&quot;, &quot;opts&quot;: [&quot;Lukas&quot;, &quot;Mia&quot;, &quot;Keiner von beiden&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Stimmt. Vielleicht Pizza bei mir?&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Frag mich bitte nicht danach\&quot;?&quot;, &quot;opts&quot;: [&quot;Ihr Tag war nicht gut&quot;, &quot;Ihr Tag war wunderbar&quot;, &quot;Sie hat den Tag vergessen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Frag mich bitte nicht danach.&quot;}, {&quot;kind&quot;: &quot;tf&quot;, &quot;s&quot;: &quot;Mia ist sich sicher, dass sie abends den Film schaut.&quot;, &quot;correct&quot;: false, &quot;ref&quot;: &quot;Mal sehen, ich bin ziemlich müde von der Woche.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was hatte Mia bei den Hausaufgaben?&quot;, &quot;opts&quot;: [&quot;Noch viele Fragen&quot;, &quot;Keine Probleme&quot;, &quot;Keine Hausaufgaben&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Na ja, es geht, ich hatte noch viele Fragen.&quot;}, {&quot;kind&quot;: &quot;mc&quot;, &quot;q&quot;: &quot;Was bedeutet \&quot;Mal sehen, ich bin ziemlich müde von der Woche\&quot;?&quot;, &quot;opts&quot;: [&quot;Sie ist nicht sicher, ob sie den Film schaut&quot;, &quot;Sie freut sich sehr auf den Film&quot;, &quot;Sie will allein fernsehen&quot;], &quot;correct&quot;: 0, &quot;ref&quot;: &quot;Mal sehen, ich bin ziemlich müde von der Woche.&quot;}]}]};
+
+const CLIP = DATA.clip;
+const LEVELS = DATA.levels;
+let audioUnlocked = false;
+
+let state = {
+  screen:&#x27;home&#x27;, currentLevel:1, unlockedLevel:1, completedLevels:new Set(),
+  q:0, score:0, history:[], answered:false, hasListenedOnce:false
+};
+
+function getLevel(id){ return LEVELS.find(l=&gt;l.id===id); }
+function clipSrc(){ return &#x27;data:audio/mpeg;base64,&#x27; + CLIP; }
+
+function render(){
+  renderLevelMap();
+  const screen = document.getElementById(&#x27;screen&#x27;);
+  const hint = document.getElementById(&#x27;hint&#x27;);
+  hint.textContent = &#x27;&#x27;;
+  if(state.screen === &#x27;home&#x27;) return renderHome(screen);
+  if(state.screen === &#x27;play&#x27;) return renderPlay(screen, hint);
+  if(state.screen === &#x27;levelresult&#x27;) return renderLevelResult(screen);
+  if(state.screen === &#x27;finished&#x27;) return renderFinished(screen);
+}
+
+function renderHome(screen){
+  const audioMsg = audioUnlocked
+    ? `&lt;p class=&quot;center&quot; style=&quot;color:var(--green-ok);&quot;&gt;🔊 Audio attivo.&lt;/p&gt;`
+    : `&lt;p class=&quot;center&quot; style=&quot;color:var(--text-dim);&quot;&gt;Prima testa l&#x27;audio:&lt;/p&gt;`;
+  screen.innerHTML = `
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;h2&gt;Benvenuto/a!&lt;/h2&gt;
+      &lt;p&gt;Quattro livelli sullo stesso dialogo tra Lukas e Mia. Prima di rispondere a ogni livello dovrai ascoltare l&#x27;audio per intero almeno una volta. Per passare al livello successivo serve almeno l&#x27;80% di risposte corrette (8 su 10). Quando sbagli, ti mostro la frase del dialogo da cui si capiva la risposta giusta.&lt;/p&gt;
+      ${audioMsg}
+      ${!audioUnlocked ? `&lt;p class=&quot;center&quot;&gt;&lt;button class=&quot;btn-ghost&quot; id=&quot;test-btn&quot;&gt;🔈 Testa l&#x27;audio&lt;/button&gt;&lt;/p&gt;` : &#x27;&#x27;}
+      &lt;p class=&quot;center&quot;&gt;&lt;button class=&quot;btn-primary&quot; id=&quot;start-btn&quot; ${!audioUnlocked?&#x27;disabled&#x27;:&#x27;&#x27;}&gt;Inizia — Livello 1&lt;/button&gt;&lt;/p&gt;
+    &lt;/div&gt;`;
+  const testBtn = document.getElementById(&#x27;test-btn&#x27;);
+  if(testBtn){
+    testBtn.addEventListener(&#x27;click&#x27;, ()=&gt;{
+      const a = document.createElement(&#x27;audio&#x27;);
+      a.src = clipSrc();
+      a.play().then(()=&gt;{ a.pause(); audioUnlocked = true; render(); }).catch(()=&gt;{ audioUnlocked = true; render(); });
+    });
+  }
+  document.getElementById(&#x27;start-btn&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt; startLevel(state.unlockedLevel));
+}
+
+function renderLevelMap(){
+  const map = document.getElementById(&#x27;levelmap&#x27;);
+  let html = &#x27;&#x27;;
+  LEVELS.forEach((lvl, idx)=&gt;{
+    let cls = &#x27;node&#x27;;
+    if(state.completedLevels.has(lvl.id)) cls += &#x27; done&#x27;;
+    else if(lvl.id === state.currentLevel &amp;&amp; state.screen === &#x27;play&#x27;) cls += &#x27; current&#x27;;
+    else if(lvl.id &lt;= state.unlockedLevel) cls += &#x27; unlocked&#x27;;
+    const label = state.completedLevels.has(lvl.id) ? &#x27;✓&#x27; : lvl.id;
+    html += `&lt;div class=&quot;node-wrap&quot;&gt;&lt;button class=&quot;${cls}&quot; data-lvl=&quot;${lvl.id}&quot; ${lvl.id&lt;=state.unlockedLevel?&#x27;&#x27;:&#x27;disabled&#x27;}&gt;${label}&lt;/button&gt;`;
+    if(idx &lt; LEVELS.length-1) html += `&lt;div class=&quot;connector&quot;&gt;&lt;/div&gt;`;
+    html += `&lt;/div&gt;`;
+  });
+  map.innerHTML = html;
+  map.querySelectorAll(&#x27;.node.unlocked, .node.done&#x27;).forEach(btn=&gt;{
+    btn.addEventListener(&#x27;click&#x27;, ()=&gt;{
+      const id = parseInt(btn.dataset.lvl,10);
+      if(id &lt;= state.unlockedLevel) startLevel(id);
+    });
+  });
+}
+
+function startLevel(id){
+  state.screen=&#x27;play&#x27;; state.currentLevel=id; state.q=0; state.score=0; state.history=[];
+  state.answered=false; state.hasListenedOnce=false;
+  render();
+}
+
+function renderPlay(screen, hint){
+  const level = getLevel(state.currentLevel);
+  const item = level.items[state.q];
+  state.answered = false;
+
+  let dots = &#x27;&#x27;;
+  for(let i=0;i&lt;level.items.length;i++){
+    let c=&#x27;dot&#x27;;
+    if(state.history[i]===&#x27;ok&#x27;) c+=&#x27; filled&#x27;;
+    if(state.history[i]===&#x27;ko&#x27;) c+=&#x27; wrong&#x27;;
+    dots += `&lt;div class=&quot;${c}&quot;&gt;&lt;/div&gt;`;
+  }
+
+  let bodyHtml = &#x27;&#x27;;
+  if(item.kind === &#x27;mc&#x27;){
+    bodyHtml = `
+      &lt;p class=&quot;center&quot; style=&quot;font-weight:700;&quot;&gt;${item.q}&lt;/p&gt;
+      &lt;div class=&quot;options&quot; id=&quot;options&quot;&gt;
+        ${item.opts.map((o,i)=&gt;`&lt;button class=&quot;option&quot; data-idx=&quot;${i}&quot; disabled&gt;${o}&lt;/button&gt;`).join(&#x27;&#x27;)}
+      &lt;/div&gt;`;
+  } else {
+    bodyHtml = `
+      &lt;p class=&quot;center&quot; style=&quot;font-weight:700;&quot;&gt;„${item.s}&quot;&lt;/p&gt;
+      &lt;div class=&quot;tf-row&quot; id=&quot;options&quot;&gt;
+        &lt;button class=&quot;option&quot; data-idx=&quot;true&quot; disabled&gt;✅ Richtig&lt;/button&gt;
+        &lt;button class=&quot;option&quot; data-idx=&quot;false&quot; disabled&gt;❌ Falsch&lt;/button&gt;
+      &lt;/div&gt;`;
+  }
+
+  screen.innerHTML = `
+    &lt;div class=&quot;partlabel&quot;&gt;${level.short} — ${level.name}&lt;/div&gt;
+    &lt;div class=&quot;levelsub&quot;&gt;${level.info_it}&lt;/div&gt;
+    &lt;div class=&quot;hud&quot;&gt;&lt;span&gt;Domanda ${state.q+1}/${level.items.length}&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;progress-dots&quot;&gt;${dots}&lt;/div&gt;
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;audio class=&quot;native-audio&quot; controls id=&quot;audio-el&quot; src=&quot;${clipSrc()}&quot;&gt;&lt;/audio&gt;
+      &lt;div class=&quot;listen-gate&quot; id=&quot;listen-gate&quot;&gt;${state.hasListenedOnce ? &quot;✅ Hai già ascoltato — puoi rispondere.&quot; : &quot;🔒 Ascolta l&#x27;audio per intero prima di poter rispondere.&quot;}&lt;/div&gt;
+      ${bodyHtml}
+      &lt;div class=&quot;feedback-box&quot; id=&quot;feedback&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;`;
+
+  const audioEl = document.getElementById(&#x27;audio-el&#x27;);
+  const optionsDiv = document.getElementById(&#x27;options&#x27;);
+
+  if(state.hasListenedOnce){
+    optionsDiv.querySelectorAll(&#x27;button&#x27;).forEach(b=&gt; b.disabled = false);
+  }
+
+  audioEl.addEventListener(&#x27;ended&#x27;, ()=&gt;{
+    if(!state.hasListenedOnce){
+      state.hasListenedOnce = true;
+      document.getElementById(&#x27;listen-gate&#x27;).textContent = &#x27;✅ Hai ascoltato — ora puoi rispondere.&#x27;;
+      document.getElementById(&#x27;listen-gate&#x27;).style.color = &#x27;var(--green-ok)&#x27;;
+      optionsDiv.querySelectorAll(&#x27;button&#x27;).forEach(b=&gt; b.disabled = false);
+    }
+  });
+
+  optionsDiv.querySelectorAll(&#x27;button&#x27;).forEach(btn=&gt;{
+    btn.addEventListener(&#x27;click&#x27;, ()=&gt; handleAnswer(btn.dataset.idx, item));
+  });
+}
+
+function handleAnswer(rawVal, item){
+  if(state.answered) return;
+  state.answered = true;
+
+  let ok;
+  if(item.kind === &#x27;mc&#x27;){
+    ok = parseInt(rawVal,10) === item.correct;
+  } else {
+    ok = (rawVal === &#x27;true&#x27;) === item.correct;
+  }
+  state.history[state.q] = ok ? &#x27;ok&#x27; : &#x27;ko&#x27;;
+  if(ok) state.score++;
+
+  document.getElementById(&#x27;options&#x27;).querySelectorAll(&#x27;button&#x27;).forEach(btn=&gt;{
+    btn.disabled = true;
+    if(item.kind === &#x27;mc&#x27;){
+      const i = parseInt(btn.dataset.idx,10);
+      if(i === item.correct) btn.classList.add(&#x27;correct&#x27;);
+      else if(String(i) === rawVal) btn.classList.add(&#x27;wrong&#x27;);
+    } else {
+      const v = (btn.dataset.idx === &#x27;true&#x27;);
+      if(v === item.correct) btn.classList.add(&#x27;correct&#x27;);
+      else if(btn.dataset.idx === rawVal) btn.classList.add(&#x27;wrong&#x27;);
+    }
+  });
+
+  const fb = document.getElementById(&#x27;feedback&#x27;);
+  fb.classList.add(&#x27;show&#x27;);
+  if(ok){
+    fb.classList.add(&#x27;ok&#x27;); fb.classList.remove(&#x27;ko&#x27;);
+    fb.innerHTML = `&lt;strong&gt;Richtig!&lt;/strong&gt;`;
+  } else {
+    fb.classList.add(&#x27;ko&#x27;); fb.classList.remove(&#x27;ok&#x27;);
+    fb.innerHTML = `&lt;strong&gt;Non corretto.&lt;/strong&gt;&lt;div class=&quot;ref&quot;&gt;Frase di riferimento: „${item.ref}&quot;&lt;/div&gt;`;
+  }
+
+  const level = getLevel(state.currentLevel);
+  setTimeout(()=&gt;{
+    state.q++;
+    if(state.q &gt;= level.items.length) finishLevel();
+    else renderPlay(document.getElementById(&#x27;screen&#x27;), document.getElementById(&#x27;hint&#x27;));
+  }, ok ? 1600 : 3200);
+}
+
+function finishLevel(){
+  const level = getLevel(state.currentLevel);
+  const passed = state.score &gt;= level.passScore;
+  if(passed){
+    state.completedLevels.add(level.id);
+    if(level.id === state.unlockedLevel &amp;&amp; level.id &lt; LEVELS.length) state.unlockedLevel = level.id + 1;
+  }
+  state.screen = &#x27;levelresult&#x27;; state.lastPassed = passed;
+  render();
+}
+
+function renderLevelResult(screen){
+  const level = getLevel(state.currentLevel);
+  const isLast = level.id === LEVELS.length;
+  const pct = Math.round((state.score/level.items.length)*100);
+  if(state.lastPassed){
+    screen.innerHTML = `
+      &lt;div class=&quot;panel&quot;&gt;
+        &lt;h2&gt;${isLast ? &#x27;🏆 Ultimo livello superato!&#x27; : &#x27;Livello superato!&#x27;}&lt;/h2&gt;
+        &lt;p class=&quot;center&quot;&gt;${state.score} su ${level.items.length} corrette (${pct}%) — soglia dell&#x27;80% raggiunta.&lt;/p&gt;
+        &lt;p class=&quot;center&quot;&gt;&lt;button class=&quot;btn-primary&quot; id=&quot;cont-btn&quot;&gt;${isLast ? &#x27;Vai alla conclusione&#x27; : &#x27;Livello successivo&#x27;}&lt;/button&gt;&lt;/p&gt;
+      &lt;/div&gt;`;
+    document.getElementById(&#x27;cont-btn&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+      if(isLast){ state.screen=&#x27;finished&#x27;; render(); }
+      else startLevel(level.id+1);
+    });
+  } else {
+    screen.innerHTML = `
+      &lt;div class=&quot;panel&quot;&gt;
+        &lt;h2&gt;Quasi! Serve l&#x27;80%&lt;/h2&gt;
+        &lt;p class=&quot;center&quot;&gt;${state.score} su ${level.items.length} corrette (${pct}%) — per superare questo livello servono almeno ${level.passScore} risposte corrette su ${level.items.length}.&lt;/p&gt;
+        &lt;p class=&quot;center&quot;&gt;&lt;button class=&quot;btn-primary&quot; id=&quot;retry-btn&quot;&gt;Riprova il livello&lt;/button&gt;&lt;/p&gt;
+      &lt;/div&gt;`;
+    document.getElementById(&#x27;retry-btn&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt; startLevel(level.id));
+  }
+}
+
+function renderFinished(screen){
+  screen.innerHTML = `
+    &lt;div class=&quot;panel&quot;&gt;
+      &lt;h2&gt;🎉 Percorso completato!&lt;/h2&gt;
+      &lt;p class=&quot;center&quot;&gt;Hai superato tutti i livelli sul dialogo di Lukas e Mia, con almeno l&#x27;80% di risposte corrette in ciascuno.&lt;/p&gt;
+      &lt;p class=&quot;center&quot;&gt;&lt;button class=&quot;btn-primary&quot; id=&quot;restart-btn&quot;&gt;Ricomincia da capo&lt;/button&gt;&lt;/p&gt;
+    &lt;/div&gt;`;
+  document.getElementById(&#x27;restart-btn&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;{
+    state = { screen:&#x27;home&#x27;, currentLevel:1, unlockedLevel:1, completedLevels:new Set(), q:0, score:0, history:[], answered:false, hasListenedOnce:false };
+    render();
+  });
+}
+
+render();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<script>
+const code=document.getElementById('code').textContent,msg=document.getElementById('msg');
+document.getElementById('d').href=URL.createObjectURL(new Blob([code],{type:'text/html'}));
+document.getElementById('c').onclick=async()=>{
+ try{await navigator.clipboard.writeText(code);msg.textContent='Copiato!'}
+ catch(e){const r=document.createRange();r.selectNodeContents(document.getElementById('code'));const s=getSelection();s.removeAllRanges();s.addRange(r);
+  msg.textContent=document.execCommand('copy')?'Copiato!':'Seleziona e copia con Ctrl+C'}
+ setTimeout(()=>msg.textContent='',3000)};
+</script></main></body></html>
